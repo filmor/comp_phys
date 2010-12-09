@@ -2,7 +2,6 @@
 #define SIMPLE_CLUSTER_HPP
 
 #include <vector>
-#include <algorithm>
 #include <boost/foreach.hpp>
 
 namespace simple
@@ -19,19 +18,19 @@ namespace simple
         {}
 
         inline friend
-        float distance2 (node_type const& node, cluster const& cl)
+        float distance (node_type const& node, cluster const& cl)
         {
-            return distance2(cl, node);
+            return distance(cl, node);
         }
 
         inline friend
-        float distance2 (cluster const& cl, node_type const& node)
+        float distance (cluster const& cl, node_type const& node)
         {
-            float res = 0.0;
+            unsigned res = distance(cl.center(), node);
 
             BOOST_FOREACH(node_type const& i, cl.nodes_)
             {
-                res = std::min(distance2(i, node), res);
+                res = std::min(distance(i, node), res);
             }
 
             return res;
@@ -52,9 +51,15 @@ namespace simple
 
         bool contains (node_type const& n)
         {
-            auto end = nodes_.end();
-            return end != std::find(nodes_.begin(), end, n);
+            for (int i = 0; i < nodes_.size(); ++i)
+            {
+                if (n == nodes_[i])
+                    return true;
+            }
+            return false;
         }
+
+        std::vector<node_type> const& get_nodes() const { return nodes_; }
 
     private:
         std::vector<node_type> nodes_;

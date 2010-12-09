@@ -6,18 +6,21 @@ def set_options(opt):
     opt.tool_options('boost')
 
 def configure(conf):
-    for i in """-Wall -g3 -fomit-frame-pointer -march=prescott -std=c++0x
-    -Wno-deprecated""".split():
+    for i in """-Wall -O2 -pg -g3 -march=prescott -std=c++0x""".split():
         conf.env.append_value('CXXFLAGS', i)
 
     conf.check_tool('compiler_cxx')
     conf.check_tool('boost')
+
+    conf.check_cxx(lib='glfw', uselib_store='GLFW')
+    conf.check_cxx(lib='GL', uselib_store='GLFW')
+    conf.check_cxx(lib='GLU', uselib_store='GLFW')
 
     conf.check_boost(lib='random', min_version='1.42',
             uselib_store='BOOST')
 
 def build(bld):
     bld(features = 'cxx cprogram', source = bld.glob("*.cpp"), target="simple",
-            uselib="BOOST_RANDOM")
+            uselib="BOOST_RANDOM GLFW")
 
 

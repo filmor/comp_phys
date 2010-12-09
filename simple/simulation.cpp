@@ -2,7 +2,9 @@
 #include "cluster.hpp"
 #include "random_walker.hpp"
 #include "random_node.hpp"
+#include "window.hpp"
 
+#include <GL/glfw.h>
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -11,12 +13,14 @@
 using namespace simple;
 using namespace boost;
 
+typedef rand48 generator_type;
+
 int main()
 {
     /// Threadsafe machen!
-    mt19937 gen (std::time(0));
+    generator_type gen (std::time(0));
 
-    const unsigned N = 1e4; // Wollen einen Cluster der Größe 10.000
+    const unsigned N = 1e3; // Wollen einen Cluster der Größe 10.000
 
     typedef infinite_rectangular_lattice lattice_type;
     typedef infinite_rectangular_lattice::node_type node_type;
@@ -25,7 +29,9 @@ int main()
     // Seed
     cluster_type cl = { node_type() };
 
-    random_walker<lattice_type, mt19937&> w (gen);
+    random_walker<lattice_type, generator_type&> w (gen);
+
+    window win;
 
     for (unsigned k = 1; k < N; ++k)
     {
@@ -37,21 +43,55 @@ int main()
             continue;
         }
 
+        unsigned starting_distance 
+            = distance(cl, w.get_node());
+
+        bool found_one = false;
+
         for(;;)
         {
-            unsigned d = static_cast<unsigned> (std::sqrt(distance2(cl, w.get_node())));
+            unsigned d = distance(cl, w.get_node());
 
-            // TODO: < EPS, nicht gleich 0
-            if (d == 0)
+            if (d < 2)
+            {
+                found_one = true;
+                break;
+            }
+            else if (starting_distance < 1.5 * d)
                 break;
             else
-                w.advance(d);
+                w.advance(d > 9.f ? std::sqrt(d) : 1.f);
+        }
+        if (found_one)
+            cl.add_node(w.get_node());
+        else
+        {
+            --k; continue;
         }
 
-        cl.add_node(w.get_node());
+        /// Drawing
+        if (k % 10 == 0)
+        {
+            glClear (GL_COLOR_BUFFER_BIT);
+            glBegin (GL_QUADS);
 
-        std::cout << k << std::endl;
+            for (int i = 0; i < cl.get_nodes().size(); ++i)
+            {
+                node_type const& node = cl.get_nodes()[i];
+                const unsigned x = node.x + 200;
+                const unsigned y = node.y + 50;
 
+                glVertex2i (2 * x,       2 * y);
+                glVertex2i (2 * (x + 1), 2 * y);
+                glVertex2i (2 * (x + 1), 2 * (y + 1));
+                glVertex2i (2 * x,       2 * (y + 1));
+            }
+
+            glEnd ();
+
+            glfwSwapBuffers ();
+            std::cout << k << std::endl;
+        }
     }
 
 }

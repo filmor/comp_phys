@@ -1,8 +1,8 @@
 #ifndef SIMPLE_LATTICE_HPP
 #define SIMPLE_LATTICE_HPP
 
-#include <boost/mpl/bool.hpp>
 #include <iostream>
+#include <cmath>
 
 #include "vector.hpp"
 
@@ -41,11 +41,9 @@ namespace simple
                 return std::move(vector<2> {float(x), float(y)});
             }
 
-            friend float distance2(node_type const& n1, node_type const& n2)
+            friend unsigned distance(node_type const& n1, node_type const& n2)
             {
-                const int dx = n1.x - n2.x;
-                const int dy = n1.y - n2.y;
-                return dx * dx + dy * dy;
+                return abs(n1.x - n2.x) + abs(n1.y - n2.y);
             }
 
             void step(unsigned direction, unsigned step_size = 1)
@@ -65,6 +63,12 @@ namespace simple
                     y -= step_size;
                     break;
                 }
+            }
+            
+            bool is_neighbor (const node_type& other) const
+            {
+                return (abs(other.x - x) == 1 && other.y == y)
+                     ||(abs(other.y - y) == 1 && other.x == x);
             }
 
             bool operator== (const node_type& other) const
