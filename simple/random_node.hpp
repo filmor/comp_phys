@@ -14,6 +14,9 @@ namespace simple
     {
         using namespace boost;
 
+         // Winkel gleichverteilt (auf der n-Sphäre):
+         //  x, y, z etc. normalverteilt, dann normalisieren
+
         normal_distribution<float> dist (radius, radius / 2);
 
         variate_generator<Rng&, normal_distribution<float>> normal(gen, dist);
@@ -28,9 +31,7 @@ namespace simple
                 vec[i] = -normal();
         }
 
-        typename Lattice::node_type result;
-        result.set_near(vec);
-        return result;
+        return typename Lattice::node_type(vec);
     }
 
 }

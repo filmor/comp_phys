@@ -1,0 +1,36 @@
+- Erzeugung abstrahieren
+- Pythonskript zum Aufruf und Datenverarbeitung
+- Wechselwirkung abstrahieren:
+    - Enthält:
+        Klebenbleiben (auch Haftungswahrscheinlichkeit)
+        Bewegungsrichtung wird beeinflusst (+ <-> +)
+- Cluster dicht (also erstmal eine Matrix)
+- Teilchen (vorher Knoten) trotzdem als (x, y)-Tupel
+- Gitter abstrahieren (mehrere Cluster, Topologie)
+    - Mehrere Richtungen herauswerfen (nur noch kubische Gitter)
+
+- Adaptives:
+    - Selbstwechselwirkung
+        -> Particle muss sich selbst entfernen können
+        -> Cluster muss sich trennen können (muss also das Gitter kennen)
+    - Cluster so halten, dass node_type allgemein ist
+
+World:
+    -> Wechselwirkungen mit WorldObject template<T1, T2> void interact(T1, T2)
+    -> Clustern
+    -> Dimension
+    -> Topologie -> Positionstyp (mit Abstand)
+    -> AddObject
+    -> Programmablauf:
+        
+
+WorldObject:
+    -> Zeiger auf World
+    -> Ist beweglich
+        -> get_position, set_position (kein Impuls)
+        -> (Orientierung)
+
+Cluster: WorldObject
+    -> Vektor von Knoten (zb bool)
+    -> Aufspaltung als Wechselwirkung
+
