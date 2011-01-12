@@ -6,7 +6,8 @@
 #include "Cluster.hpp"
 #include "Bath.hpp"
 #include "World.hpp"
-#include "Visitor.hpp"
+#include "gl_visitor.hpp"
+#include "population_visitor.hpp"
 
 using namespace trivial;
 

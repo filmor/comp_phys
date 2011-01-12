@@ -5,7 +5,7 @@
 
 #include "Topology.hpp"
 #include "Cluster.hpp"
-#include "Visitor.hpp"
+#include "visitor.hpp"
 
 namespace trivial
 {
