@@ -7,7 +7,7 @@
 #include "Particle.hpp"
 #include "Cluster.hpp"
 #include "Bath.hpp"
-#include "Visitor.hpp"
+#include "visitor.hpp"
 
 namespace trivial
 {

@@ -6,7 +6,7 @@
 
 #include "Topology.hpp"
 #include "Particle.hpp"
-#include "Visitor.hpp"
+#include "visitor.hpp"
 #include "HyperCube.hpp"
 
 namespace trivial
