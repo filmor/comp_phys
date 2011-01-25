@@ -1,32 +1,26 @@
 #ifndef TRIVIAL_VISITOR_HPP
 #define TRIVIAL_VISITOR_HPP
 
-#include <GL/glfw.h>
-#include <iostream>
-
 namespace trivial
 {
-	using std::cout;
-	using std::endl;
+	template<typename Position>
+	class particle;
+	template<typename Position>
+	class cluster;
 
-	template<class TOPOLOGY>
-	class Particle;
-	template<class TOPOLOGY>
-	class Cluster;
-
-	template<class VISITED>
-	class Visitor
+	template<class Visited>
+	class visitor
 	{
 		public:
-			virtual void visit(VISITED * visisted) = 0;
-			virtual ~Visitor() {}
+			virtual void visit(Visited * visisted) = 0;
+			virtual ~visitor() {}
 	};
 
-	template<class TOPOLOGY, class WORLD>
-	class OmniVisitor : Visitor<Particle<TOPOLOGY>>, Visitor<Cluster<TOPOLOGY>>, Visitor<WORLD>
+	template<typename Position, class World>
+	class omni_visitor : public visitor<particle<Position>>, public visitor<cluster<Position>>, public visitor<World>
 	{
 		public:
-			virtual ~OmniVisitor() {}
+			virtual ~omni_visitor() {}
 	};
 
 }

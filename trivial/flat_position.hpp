@@ -12,7 +12,6 @@ namespace trivial
 	class flat_position : public position<N>, boost::addable1<flat_position<N>, boost::subtractable<flat_position<N>, boost::multipliable2<flat_position<N>, float, boost::dividable2<flat_position<N>, float>>>>
 	{
 		public:
-			static const unsigned dimension = N;
 			static const std::vector<flat_position> unit_vectors;
 
 			flat_position(const std::array<float, N> & coord = std::array<float, N>({})) : position<N>(coord) {};

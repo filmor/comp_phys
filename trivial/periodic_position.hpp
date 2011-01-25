@@ -12,7 +12,6 @@ namespace trivial
 	class periodic_position : public position<N>, boost::addable1<periodic_position<N, Size>, boost::subtractable<periodic_position<N, Size>, boost::multipliable2<periodic_position<N, Size>, float, boost::dividable2<periodic_position<N, Size>, float>>>>
 	{
 		public:
-			static const unsigned dimension = N;
 			static const std::vector<periodic_position> unit_vectors;
 
 			periodic_position(const std::array<float, N> & coord = std::array<float, N>({})) : position<N>(coord)
@@ -54,7 +53,7 @@ namespace trivial
 			{
 				for(unsigned n = 0; n < N; ++n)
 				{
-					while(this->coord_[n] >= Size / 2)
+					while(this->coord_[n] >= Size / 2)	//should be faster than calculation because always close to valid position
 						this->coord_[n] -= Size;
 					while(this->coord_[n] < -(Size + 1) / 2)
 						this->coord_[n] += Size;

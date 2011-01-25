@@ -60,9 +60,9 @@ namespace trivial
 			}
 
 		private:
+			int size_;
 			std::vector<T> map_;
 			std::array<int, N> offset_;
-			int size_;
 
 			inline const int index(const std::array<int, N> & key, const unsigned size, const std::array<int, N> & offset) const
 			{

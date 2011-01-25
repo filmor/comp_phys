@@ -5,40 +5,33 @@
 
 namespace trivial
 {
-	template<class TOPOLOGY, class PARTICLE, class CLUSTER, class WORLD, bool WORLDONLY>
-	class PopulationVisitor : public OmniVisitor<TOPOLOGY, WORLD>
+	using std::cout;
+	using std::endl;
+
+	template<typename Position, class Particle, class Cluster, class World, bool VisitWorld, bool VisitParticle, bool VisitCluster>
+	class population_visitor : public omni_visitor<Position, World>
 	{
-
-		void visit(Particle<TOPOLOGY> * particle)
+		void visit(particle<Position> * particle)
 		{
-			if(WORLDONLY)
+			if(!VisitParticle)
 				return;
 
-			cout << "particle [" << particle << "] at (";
-			for(unsigned n = 0; n < TOPOLOGY::dimensions - 1; ++n)
-				cout << particle->position[n] << ",";
-			cout << particle->position[TOPOLOGY::dimensions - 1] << ")" << endl;
+			cout << "particle [" << particle << "] at " << particle->position << endl;
 		}
 
-		void visit(Cluster<TOPOLOGY> * cluster)
+		void visit(cluster<Position> * cluster)
 		{
-			if(WORLDONLY)
+			if(!VisitCluster)
 				return;
 
-			cout << "cluster [" << cluster << "] at (";
-			for(unsigned n = 0; n < TOPOLOGY::dimensions - 1; ++n)
-				cout << cluster->get_bounds().center[n] << ",";
-			cout << cluster->get_bounds().center[TOPOLOGY::dimensions - 1] << ") radius: " << cluster->get_bounds().radius << ", particles: " << ((CLUSTER *)cluster)->get_particles().size() << endl;
-
-			for(unsigned n = 0; n < cluster->get_particles().size(); ++n)
-			{
-				cout << "\t";
-				visit(cluster->get_particles()[n]);
-			}
+			cout << "cluster [" << cluster << "] at " << cluster->get_center() << " radius: " << cluster->get_radius() << ", particles: " << cluster->get_particles().size() << endl;
 		}
 
-		void visit(WORLD * world)
+		void visit(World * world)
 		{
+			if(!VisitWorld)
+				return;
+
 			unsigned sum = 0;
 			for(unsigned n = 0; n < world->get_clusters().size(); ++n)
 				sum += world->get_clusters()[n]->get_particles().size();

@@ -14,7 +14,7 @@ namespace trivial
 	template<typename Position, class Particle, class Cluster, class Bath>
 	class world;
 
-	//prototype. not implemented
+	//abc
 	template<typename Position, class Particle, class Cluster>
 	class bath
 	{

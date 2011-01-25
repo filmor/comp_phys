@@ -7,23 +7,24 @@
 
 namespace trivial
 {
+	//abc
 	template<unsigned N>
 	class position
 	{
 		public:
-			//sub classes shall define static const unsigned dimension
-			//sub classes shall define static const std::vector<*> unit_vectors
+			static const unsigned dimension = N;
 
-			//sub classes shall define vector space operators
+			//sub classes shall define static const std::vector<*> unit_vectors
+			//sub classes shall define vector space operations
 		
 			position(const std::array<float, N> & coord = std::array<float, N>({})) : coord_(coord) {};
 
 			bool operator==(const position & p) const
 			{
 				for(unsigned n = 0; n < N; ++n)
-					if(std::abs(this->coord_[n] - p.coord_[n]) > 0.5f)
-					//if(std::floor(this->coord_[n] + 0.5f) != std::floor(p.coord_[n] + 0.5f))
-					//if(this->coord_[n] != p.coord_[n])
+					if(std::abs(this->coord_[n] - p.coord_[n]) > 0.5f)  // OK
+					//if(std::floor(this->coord_[n] + 0.5f) != std::floor(p.coord_[n] + 0.5f))  // exact
+					//if(this->coord_[n] != p.coord_[n])	// fast
 						return false;
 				return true;
 			}

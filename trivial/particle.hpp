@@ -9,7 +9,7 @@
 
 namespace trivial
 {
-	//prototype. not implemented
+	//abc
 	template<typename Position>
 	class particle
 	{

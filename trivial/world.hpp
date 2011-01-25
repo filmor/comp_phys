@@ -67,7 +67,7 @@ namespace trivial
 				return particles_;
 			}
 	
-			inline /*const*/ std::vector<cluster<Position> *> & get_clusters() /*const*/ // temporarily not return const to be able to prepare clusters in main()
+			inline /*const*/ std::vector<cluster<Position> *> & get_clusters() /*const*/ //TODO write seeding visitor instead
 			{
 				return clusters_;
 			}
