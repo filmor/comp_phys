@@ -9,15 +9,19 @@
 namespace trivial
 {
 	template<class T, unsigned N>
-	class HyperCube
+	class hyper_cube
 	{
 		public:
-			HyperCube(unsigned size, const std::array<int, N> & offset) : size_(size), offset_(offset), map_(pow(size, N)) {}
-
-			void shift_offset(const std::array<int, N> & shift)
+			hyper_cube(unsigned size, const std::array<int, N> & origin = std::array<int, N>({})) : size_(size), map_(pow(size, N))
 			{
-				for(unsigned n = 0; n < N; n++)
-					offset_[n] += shift[n];
+				for(unsigned n = 0; n < N; ++n)
+					offset_[n] = origin[n] - size / 2;
+			}
+
+			void shift_origin(const std::array<int, N> & shift)
+			{
+				for(unsigned n = 0; n < N; ++n)
+					offset_[n] -= shift[n];
 			}
 
 			typename std::vector<T>::reference operator()(const std::array<int, N> & key)
