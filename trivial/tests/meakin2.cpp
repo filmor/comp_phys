@@ -15,7 +15,7 @@ int main(int args, char ** argv)
 {
 	srand(time(0));
 
-	const unsigned size = 200;
+	const unsigned size = 400;
 	const unsigned dimension = 2;
 	const unsigned particles = size * size * 0.1;
 	typedef periodic_position<dimension, size> position_type;

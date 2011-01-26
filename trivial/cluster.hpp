@@ -89,11 +89,10 @@ namespace trivial
 			std::vector<particle<Position> *> particles_;
 			Position center_, map_origin_;
 			hyper_cube<bool, Position::dimension> map_;
-
-		private:
 			float radius_;
 			float radius2_;
 
+		private:
 			void init_bounds(Position & p)
 			{
 				center_ = p;
@@ -166,7 +165,7 @@ namespace trivial
 
 				for(unsigned n = 0; n < clusters.size(); ++n)
 				{
-					if(clusters[n] == this)
+					if(clusters[n] == this || abs(clusters[n]->get_center() - this->center_) > clusters[n]->get_radius() + this->radius_)
 						continue;
 
 					for(unsigned m = 0; m < clusters[n]->get_particles().size(); ++m)
