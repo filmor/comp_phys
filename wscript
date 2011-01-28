@@ -13,8 +13,6 @@ def configure(conf):
 
     conf.env.append_value('LINKFLAGS', '-pg')
     conf.env.append_value('CXXFLAGS', '-pg')
-    conf.env.append_value('CXXFLAGS', '-I.')
-    conf.env.append_value('CXXFLAGS', '-I..')
 
     conf.check_tool('compiler_cxx')
     conf.check_tool('boost')
@@ -29,8 +27,9 @@ def configure(conf):
 def build(bld):
     sources = bld.glob("*.cpp")
     for i in bld.glob("tests/*.cpp"):
-        bld(features = 'cxx cprogram', source = [i] + sources,
+        bld(features = 'cxx cprogram',
+            source = [i] + sources,
             target="trivial-%s" % (splitext(basename(i))[0]),
-            uselib="BOOST_RANDOM GLFW")
-
+            uselib="BOOST_RANDOM GLFW",
+            includes=".. .")
 
