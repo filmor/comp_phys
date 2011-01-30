@@ -32,7 +32,7 @@ int main(int args, char ** argv)
 	c->add_particle(new particle_type(p));
 	w.get_clusters().push_back(c);
 
-	gl_visitor<position_type, particle_type, cluster_type, world_type, 1> glv(400, 400, false);
+	gl_visitor<position_type, particle_type, cluster_type, world_type> & glv = gl_visitor<position_type, particle_type, cluster_type, world_type>::visitor();
 	population_visitor<position_type, particle_type, cluster_type, world_type, true, false, false> pv;
 
 	for(unsigned int n = 0;; n++)

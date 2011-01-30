@@ -25,7 +25,7 @@ int main(int args, char ** argv)
 
 	world_type w;
 
-	gl_visitor<position_type, particle_type, cluster_type, world_type, 1> glv(400, 400, false);
+	gl_visitor<position_type, particle_type, cluster_type, world_type> & glv = gl_visitor<position_type, particle_type, cluster_type, world_type>::visitor();
 	population_visitor<position_type, particle_type, cluster_type, world_type, false, false, true> pv;
 
 	for(unsigned int n = 0;; n++)
