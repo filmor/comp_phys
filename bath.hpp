@@ -11,145 +11,156 @@
 
 namespace trivial
 {
-	template<typename Position, class Particle, class Cluster, class Bath>
+	template<class Particle, class Bath>
 	class world;
 
-	//abc
-	template<typename Position, class Particle, class Cluster>
-	class bath
+	template<class Particle, int Size, unsigned FreeParticles>
+	class uniform_bath
 	{
 		public:
-			void step(std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters);
-	};
+            typedef typename Particle::position_type position_type;
+            typedef cluster<Particle> cluster_type;
+            typedef Particle particle_type;
 
-	template<typename Position, class Particle, class Cluster, int Size, unsigned FreeParticles>
-	class uniform_bath : public bath<Position, Particle, Cluster>
-	{
-		public:
-			void step(std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters) 
+			void step(std::vector<particle_type>& particles,
+                      std::vector<cluster_type>& clusters) 
 			{
-				for(unsigned n = particles.size(); n < FreeParticles; ++n)
+				for (unsigned n = particles.size(); n < FreeParticles; ++n)
 				{
-					Position pos;
-					for(bool collision = true; collision;)
+					position_type pos;
+					for (bool collision = true; collision;)
 					{
-						for(unsigned m = 0; m < Position::dimension; ++m)
-							pos += Position::unit_vectors[m] * ((rand() % Size) - Size / 2); //TODO generator
+						for (unsigned m = 0; m < position_type::dimension; ++m)
+							pos += get_unit_vector<position_type> (m)
+                                   * ((rand() % Size) - Size / 2); //TODO generator
 
 						collision = false;
-						for(unsigned m = 0; m < particles.size(); ++m)
-							if(particles[m]->position == pos)
+
+						for (unsigned m = 0; m < particles.size(); ++m)
+							if (particles[m].position == pos)
 							{
-								std::cout << "collision" << std::endl;
+								std::cout << "collision\n";
 								collision = true;
 								break;
 							}
 						
-						if(!collision)
-							for(unsigned m = 0; m < clusters.size(); ++m)
-								if(clusters[m]->has_particle_at(pos))
+						if (!collision)
+							for (unsigned m = 0; m < clusters.size(); ++m)
+								if (clusters[m].has_particle_at(pos))
 								{
-									std::cout << "collision" << std::endl;
+									std::cout << "collision\n";
 									collision = true;
 									break;
-					
 								}
 					}
-					particles.push_back(new Particle(pos));
+					particles.push_back(Particle(pos));
 				}
 
 			}
 	};
 
-	template<typename Position, class Particle, class Cluster, int Size, unsigned FreeParticles>
-	class diffusion_limited_bath : public bath<Position, Particle, Cluster>
+	template<class Particle, int Size, unsigned FreeParticles>
+	class diffusion_limited_bath
 	{
 		bool seeded_;
 
 		public:
+            typedef typename Particle::position_type position_type;
+            typedef cluster<Particle> cluster_type;
+            typedef Particle particle_type;
+
 			diffusion_limited_bath() : seeded_(false) {}
 
-			void step(std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters) 
+			void step(std::vector<particle_type>& particles,
+                      std::vector<cluster_type>& clusters) 
 			{
 				if(!seeded_)
 				{
-					Position p;
-					clusters.push_back(new Cluster);
-					clusters[0]->add_particle(new Particle(p));
-					p += Position::unit_vectors[0];
-					clusters[0]->add_particle(new Particle(p));
+					position_type p;
+					clusters.push_back(cluster_type());
+					clusters.back().add_particle(particle_type(p));
+					p += get_unit_vector<position_type>(0);
+					clusters.back().add_particle(particle_type(p));
 					seeded_ = true;
 				}
 
-				const Position & center = clusters[0]->get_center();
-				const float radius = clusters[0]->get_radius();
+				const position_type& center = clusters[0].get_center();
+				const float radius = clusters[0].get_radius();
 
 				int create = FreeParticles;
 				for(unsigned n = 0; n < particles.size(); ++n)
-					if(abs(particles[n]->position - center) > std::max(2 * radius, radius + 10))
+					if(abs(particles[n].position - center)
+                            > std::max(2 * radius, radius + 10))
 					{
-						delete particles[n];
 						particles.erase(particles.begin() + n);
 						--n;
 					}
-					else --create;
+					else
+                    {
+                        --create;
+                    }
 			
 				while(create-- > 0)	
 				{
-					Position pos;
+					position_type pos;
 					for(bool collision = true; collision;)
 					{
-						std::array<float, Position::dimension> e;
+						std::array<float, position_type::dimension> e;
 						float mod = 0;
-						for(unsigned m = 0; m < Position::dimension; ++m)
+						for(unsigned m = 0; m < e.size(); ++m)
 						{
-							e[m] = 2 * (float)rand() / RAND_MAX - 1;		//TODO normal distribution
+							e[m] = 2 * (float)rand() / RAND_MAX - 1;
+                            //TODO normal distribution
 							mod += e[m] * e[m];
 						}
 						mod = sqrt(mod);
-						for(unsigned m = 0; m < Position::dimension; ++m)
-							pos += Position::unit_vectors[m] * (e[m] * (radius + 5) / mod);
+						for(unsigned m = 0; m < position_type::dimension; ++m)
+							pos += get_unit_vector<position_type>(m)
+                                 * (e[m] * (radius + 5) / mod);
 						pos += center;
-						pos.round();
 
 						collision = false;
 						for(unsigned m = 0; m < particles.size(); ++m)
-							if(particles[m]->position == pos)
+							if(particles[m].position == pos)
 							{
-								std::cout << "collision" << std::endl;
+								std::cout << "collision\n";
 								collision = true;
 								break;
 							}
 						
 						if(!collision)
 							for(unsigned m = 0; m < clusters.size(); ++m)
-								if(clusters[m]->has_particle_at(pos))
+								if(clusters[m].has_particle_at(pos))
 								{
-									std::cout << "collision" << std::endl;
+									std::cout << "collision\n";
 									collision = true;
 									break;
-					
 								}
 					}
-					particles.push_back(new Particle(pos));
+					particles.push_back(particle_type(pos));
 				}
 
 			}
 	};
 
-	template<typename Position, class Particle, class Cluster, int Size, unsigned Particles>
-	class static_bath : public bath<Position, Particle, Cluster>
+	template<class Particle, int Size, unsigned Particles>
+	class static_bath
 	{
 		bool done_;
 
 		public:
+            typedef typename Particle::position_type position_type;
+            typedef cluster<Particle> cluster_type;
+            typedef Particle particle_type;
+
 			static_bath() : done_(false) {}
 
-			void step(std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters) 
+			void step(std::vector<particle_type>& particles,
+                      std::vector<cluster_type> & clusters) 
 			{
 				if(done_)
 					return;
-				uniform_bath<Position, Particle, Cluster, Size, Particles>().step(particles, clusters);
+				uniform_bath<Particle, Size, Particles>().step(particles, clusters);
 				done_ = true;
 			}
 	};

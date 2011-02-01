@@ -3,141 +3,115 @@
 
 #include <vector>
 #include <algorithm>
+#include <boost/optional.hpp>
 
-#include "position.hpp"
 #include "particle.hpp"
 #include "visitor.hpp"
 #include "hyper_cube.hpp"
 
 namespace trivial
 {
-	//abc
-	template<typename Position>
+
+	template <class Particle>
 	class cluster
 	{
-		public:
-			static const char RESULT_NONE, RESULT_EMPTY;
+    public:
+        typedef Particle particle_type;
+        typedef typename Particle::position_type position_type;
+        typedef vector<position_type::dimension, float> float_vector;
 
-			cluster() : map_(3) {}
+        cluster() : data_(3), count_(0), size_(3)
+        {}
 
-			bool interact(std::vector<particle<Position> *> & particles, const std::vector<cluster<Position> *> & clusters);
+        void add_particle(Particle const& p)
+        {
+            auto relative_position = p.position - origin_;
+            auto difference2 = abs2(relative_position);
+            
+            /// TODO: hyper_cube indexable by vector<N> or see if multi_array
+            ///       supports this directly (vector<N> is iterable!)
+            if (difference2 > radius2_)
+            {
+                float_vector pos (p.position);
+                // Construct new center_
+                center_ += 0.5f * (1 - radius_ / std::sqrt(difference2))
+                                * (relative_position - center_);
 
-			void add_particle(particle<Position> * const p)
-			{
-				particles_.push_back(p);
+                for (unsigned i = 0; i < origin_.size(); ++i)
+                    // TODO Round correctly!
+                    origin_[i] += int(center_[i] + 0.5f);
 
-				if(particles_.size() == 1)
-					init_bounds(p->position);
-				else add_to_bounds(p->position);
+                data_.grow_around(origin_);
 
-				map_((p->position - map_origin_).to_int_array()) = true;
-			}
+                // Should work for now. But still, investigate!
+                radius2_ = difference2;
+                radius_ = std::sqrt(radius2_);
+            }
 
-			void remove_particle(particle<Position> * const p)
-			{
-				std::find(particles_.begin(), particles_.end(), p).erase();
+            data_[relative_position] = p;
+            particles_.push_back(p);
+        }
 
-				if(particles_.size() > 1) //TODO too complicated, improve if needed frequently
-				{
-					init_bounds(particles_[0]->position);
-					for(unsigned n = 0; n < particles_.size(); ++n)
-						add_to_bounds(particles_[n]->position);
-				}
+        void merge (cluster const& other)
+        {
+            // TODO
+        }
 
-				map_((p->position - map_origin_).to_int_array()) = false;
-			}
+        bool has_particle_at(position_type const& p) const
+        {
+            return data_[p - origin_].is_initialized();
+        }
 
-			void clear_particles()
-			{
-				particles_.clear();
-				map_.clear(); 
-			}
+        std::vector<particle_type> const& get_particles () const
+        {
+            return particles_;
+        }
 
-			bool has_particle(const particle<Position> * const p) const
-			{
-				return std::find(particles_.begin(), particles_.end(), p) != particles_.end();
-			}
+        inline position_type const& get_center() const
+        {
+            return origin_;
+        }
 
-			bool has_particle_at(const Position & p) 
-			{
-				if(abs2(p - center_) > radius2_)
-					return false;
-				return map_((p - map_origin_).to_int_array());
-			}
+        inline float get_radius() const
+        {
+            return radius_;
+        }
 
-			inline const std::vector<particle<Position> *> & get_particles() const
-			{
-				return particles_;
-			}
+        template <typename T>
+        void accept (visitor<T>& visitor)
+        {
+            visitor.visit(*this);
+        }
+        
+        template <typename T>
+        void accept (const_visitor<T>& visitor) const
+        {
+            visitor.visit(*this);
+        }
 
-			inline const Position & get_center() const
-			{
-				return center_;
-			}
+        void move () {}
 
-			inline const float get_radius() const
-			{
-				return radius_;
-			}
+        inline friend
+        char interact (cluster const& lhs, cluster const& rhs)
+        {
+            return 0;
+        }
 
-			void accept(visitor<cluster<Position>> & visitor)
-			{
-				visitor.visit(this);
-			}
+    private:
+        float_vector center_;
+        position_type origin_;
+        
+        hyper_cube<boost::optional<Particle>, position_type::dimension>
+            data_;
 
-		protected:
-			std::vector<particle<Position> *> particles_;
-			Position center_, map_origin_;
-			hyper_cube<bool, Position::dimension> map_;
-			float radius_;
-			float radius2_;
+        std::vector<particle_type> particles_;
 
-		private:
-			void init_bounds(Position & p)
-			{
-				center_ = p;
-				radius_ = radius2_ = 1;
-				map_ = hyper_cube<bool, Position::dimension>(3);
-				map_origin_ = center_;
-				map_origin_.round();
-			}
-
-			void add_to_bounds(Position & p)
-			{
-				float d2 = abs2(p - center_);
-				if(d2 > radius2_)
-				{
-					// construct new center and radius as to enclose the previous sphere as well as additional point p
-					// keep map_origin_ to prevent rounding mistakes upon look up
-					center_ += 0.5f * (1 - radius_ / std::sqrt(d2)) * (p - center_);
-
-					Position old_origin = map_origin_;
-					map_origin_ = center_;
-					map_origin_.round();
-					map_.shift_origin((map_origin_ - old_origin).to_int_array());
-
-					radius2_ = abs2(p - center_);
-					radius_ = std::sqrt(radius2_);
-				}
-			}
-	};
-	
-	template<typename Position>
-	const char cluster<Position>::RESULT_NONE = 0;
-
-	template<typename Position>
-	const char cluster<Position>::RESULT_EMPTY = 1;
-
-	template<typename Position>
-	class static_cluster : public cluster<Position>
-	{
-		public:
-			char interact(std::vector<particle<Position> *> & particles, const std::vector<cluster<Position> *> & clusters)
-			{
-				return this->particles_.empty() ? cluster<Position>::RESULT_EMPTY : cluster<Position>::RESULT_NONE;
-			}
+        float radius_, radius2_;
+        std::size_t count_;
+        std::size_t size_;
 	};
 
+    /*
 	template<typename Position>
 	class sticky_cluster : public static_cluster<Position> //TODO sticky factor
 	{
@@ -152,7 +126,7 @@ namespace trivial
 				for(unsigned n = 0; n < particles.size(); ++n)
 					for(int m = 0; m < Position::dimension * 2; ++m)
 					{
-						Position p = particles[n]->position + (2 * (m % 2) - 1) * Position::unit_vectors[m / 2];
+						Position p = particles[n].position + (2 * (m % 2) - 1) * Position::unit_vectors[m / 2];
 						if(has_particle_at(p))
 						{
 							add_particle(particles[n]);
@@ -207,7 +181,7 @@ namespace trivial
 					return this->particles_.empty() ? cluster<Position>::RESULT_EMPTY : cluster<Position>::RESULT_NONE;
 				else return sticky_cluster<Position>::interact(particles, clusters);
 			}
-	};
+	};*/
 }
 
 #endif

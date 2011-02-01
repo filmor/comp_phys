@@ -8,20 +8,36 @@ namespace trivial
 	template<typename Position>
 	class cluster;
 
-	template<class Visited>
-	class visitor
+	template <class Visited>
+    struct visitor
 	{
-		public:
-			virtual void visit(Visited * visisted) = 0;
-			virtual ~visitor() {}
+        virtual void visit(Visited& visited) {}
+        virtual ~visitor() {}
+	};
+    
+    template <class Visited>
+    struct const_visitor
+    {
+        virtual void visit(Visited const& visited) {}
+        virtual ~const_visitor() {}
+    };
+
+#define TRIVIAL_DEFINE_VISITABLE(type) \
+    void accept (visitor<type>& v) { v.visit(*this); } \
+    void accept (const_visitor<type>& v) const { v.visit(*this); }
+
+	template <class World>
+	struct world_visitor : visitor<typename World::particle_type>
+                         , visitor<typename World::cluster_type>
+                         , visitor<World>
+	{
 	};
 
-	template<typename Position, class World>
-	class omni_visitor : public visitor<particle<Position>>, public visitor<cluster<Position>>, public visitor<World>
-	{
-		public:
-			virtual ~omni_visitor() {}
-	};
+    template <class World>
+    struct const_world_visitor : const_visitor<typename World::particle_type>
+                               , const_visitor<typename World::cluster_type>
+                               , const_visitor<World>
+    {};
 
 }
 

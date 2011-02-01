@@ -1,122 +1,91 @@
-#ifndef TRIVIAL_HYPERCUBE_HPP
-#define TRIVIAL_HYPERCUBE_HPP
+#ifndef TRIVIAL_HYPER_CUBE_HPP
+#define TRIVIAL_HYPER_CUBE_HPP
+
+#include "vector.hpp"
 
 #include <vector>
-#include <array>
-#include <cmath>
-#include <algorithm>
 
 namespace trivial
 {
-	template<class T, unsigned N>
-	class hyper_cube
-	{
-		public:
-			hyper_cube(unsigned size, const std::array<int, N> & origin = std::array<int, N>({})) : size_(size), map_(pow(size, N))
-			{
-				for(unsigned n = 0; n < N; ++n)
-					offset_[n] = origin[n] - size / 2;
-			}
+    namespace
+    {
 
-			void shift_origin(const std::array<int, N> & shift)
-			{
-				for(unsigned n = 0; n < N; ++n)
-					offset_[n] -= shift[n];
-			}
+        template <typename T>
+        T pow (T val, unsigned exponent)
+        {
+            T res = 1;
+            for (unsigned i = 0; i < exponent; ++i)
+                res *= val;
+            return res;
+        }
+    }
 
-			typename std::vector<T>::reference operator()(const std::array<int, N> & key)
-			{
-				for(;;)
-				{
-					bool f = false;
-					for(unsigned n = 0; n < N && !f; n++)
-						f = (key[n] >= offset_[n] + size_ || key[n] < offset_[n]);
-					if(f)
-						resize(1.5);
-					else break;
-				}
+    template <typename T, unsigned Dimensions>
+    class hyper_cube
+    {
+    public:
+        typedef vector<Dimensions, int> index_type;
+        typedef std::vector<T> data_type;
 
-				return map_[index(key)];
-			}
+        hyper_cube (std::size_t size)
+            : data_(pow(size, Dimensions)), size_(size)
+        {}
 
-			void clear()
-			{
-				std::fill(map_.begin(), map_.end(), T());
-			}
-			
-			void print()
-			{
-				if(N != 2)
-					throw "not supported";
-	
-				std::cout<<"("<<offset_[0]<<","<<offset_[1]<<") "<<size_<<std::endl;
-				std::array<int, 2> p;
-				for(p[1] = offset_[1] + size_ - 1; p[1] >= offset_[1]; --p[1])
-				{
-					for(p[0] = offset_[0]; p[0] < offset_[0] + size_; ++p[0])
-						std::cout << (map_[index(p)] ? "x" : "_");
-					std::cout << std::endl;
-				}
-			}
+        void grow_around (index_type const& center)
+        {
+            // Assertion!
+            std::size_t new_size = 2 * size_;
+            data_type new_data(pow(2 * new_size + 1, Dimensions));
 
-		private:
-			int size_;
-			std::vector<T> map_;
-			std::array<int, N> offset_;
+            // Fill new vector
+            for (unsigned i = 0; i < data_.size(); ++i)
+            {
+                new_data.at(
+                        get_int_index((get_vec_index(i, size_) - center)
+                                      , new_size))
+                    = data_[i];
+            }
 
-			inline const int index(const std::array<int, N> & key, const unsigned size, const std::array<int, N> & offset) const
-			{
-				unsigned index = 0;
-				for(unsigned n = 0; n < N; ++n)
-					index = size * index + (key[n] - offset[n]);
-				return index;
-			}
+            size_ = new_size;
+            data_.swap(new_data);
+        }
 
-			inline const int index(const std::array<int, N> & key) const
-			{
-				return index(key, size_, offset_);
-			}
+        T& operator[] (index_type const& index)
+        {
+            return data_[get_int_index(index, size_)];
+        }
 
-			void resize(const float factor)
-			{
-				if(factor < 1)
-					throw "not supported";
+        T const& operator[] (index_type const& index) const
+        {
+            return data_[get_int_index(index, size_)];
+        }
 
-				int new_size = size_ * factor;
-				int shift = (new_size - size_) / 2;
-				std::array<int, N> new_offset = offset_;
-				for(unsigned n = 0; n < N; ++n)
-					new_offset[n] -= shift;
+    private:
+        static
+            std::size_t get_int_index (index_type const& index,
+                                       std::size_t size)
+        {
+            std::size_t result = 0;
+            std::size_t multiplicator = 1;
+            for (unsigned i = 0; i < Dimensions; ++i, multiplicator *= size)
+                result += multiplicator * (index[i] + size);
+            return result;
+        }
 
-				map_.resize(pow(new_size, N));
+        static index_type get_vec_index (std::size_t index, std::size_t size)
+        {
+            index_type result;
+            for (unsigned i = 0; i < Dimensions && index; ++i)
+            {
+                result[i] = index % size;
+                index /= size;
+            }
+            return result;
+        }
 
-				std::array<int, N> key;
-				move_content(key, new_size, new_offset, 0);
-
-				size_ = new_size;
-				offset_ = new_offset;
-			}
-
-			void move_content(std::array<int, N> & key, const unsigned new_size, const std::array<int, N> & new_offset, const unsigned n)
-			{
-				key[n] = size_ + offset_[n] - 1;
-				while(key[n] >= offset_[n])
-				{
-					if(n < N - 1)
-						move_content(key, new_size, new_offset, n + 1);
-					else
-					{
-						unsigned old_index = index(key);
-						unsigned new_index = index(key, new_size, new_offset);
-						map_[new_index] = map_[old_index];
-						if(new_index != old_index)
-							map_[old_index] = T();
-					}
-
-					--key[n];
-				}			
-			}
-	};
+        std::vector<T> data_; // Cube of size 2size_+1 in every direction
+        std::size_t size_;
+    };
 }
 
 #endif

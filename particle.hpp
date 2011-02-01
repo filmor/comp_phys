@@ -9,50 +9,72 @@
 
 namespace trivial
 {
-	//abc
 	template<typename Position>
 	class particle
 	{
-		public:
-			static const char RESULT_NONE = 0, RESULT_CLUSTERED = 1, RESULT_NEW_CLUSTER = 2;
+    public:
+        enum result_type { RESULT_NONE, RESULT_JOIN };
 
-			Position position;	
+        typedef Position position_type;
 
-			particle(const Position & pos) : position(pos) {};
-			char interact(const std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters);
+        Position position;	
 
-			void accept(visitor<particle<Position>> & visitor)
-			{
-				visitor.visit(this);
-			}
+        particle(const Position & pos) : position(pos) {};
+
+        inline friend
+        result_type interact(const particle&, const particle&)
+        {
+            return RESULT_NONE;
+        }
+
+        inline friend
+        result_type interact(const particle&, const cluster<particle>&)
+        {
+            return RESULT_NONE;
+        }
+
+        inline friend
+        std::ostream& operator<< (std::ostream& os, particle const& part)
+        {
+            return os << ".";
+        }
+
+        TRIVIAL_DEFINE_VISITABLE(particle);
+
+        void move() {}
 	};
 
-	template<typename Position>
+	template <typename Position>
 	class sticky_particle : public particle<Position> // TODO sticky factor
 	{
-		public:
-			sticky_particle(const Position & pos) : particle<Position>(pos) {};
+    public:
+        sticky_particle(const Position& pos) : particle<Position>(pos) {};
 
-			char interact(const std::vector<particle<Position> *> & particles, std::vector<cluster<Position> *> & clusters)
-			{
-				for(int n = 0; n < Position::dimension * 2; ++n)
-				{
-					Position p = this->position + (2 * (n % 2) - 1) * Position::unit_vectors[n / 2];
-				
-					for(unsigned m = 0; m < clusters.size(); ++m)
-						if(clusters[m]->has_particle_at(p))
-						{
-							clusters[m]->add_particle(this);
-							return particle<Position>::RESULT_CLUSTERED;
-						}
-					for(unsigned m = 0; m < particles.size(); ++m)
-						if(p == particles[m]->position)
-							return particle<Position>::RESULT_NEW_CLUSTER; // other particle will be added in its interact or in the cluster's, i.e. within this step()
-				}
+        inline friend
+        char interact(const sticky_particle& particle,
+                      const cluster<sticky_particle>& cluster)
+        {
+            for (unsigned n = 0; n < Position::dimension * 2; ++n)
+            {
+                const Position p = particle.position + (2 * (n % 2) - 1) 
+                                 * get_unit_vector<Position>(n / 2);
+                if (cluster.has_particle_at(p))
+                    return sticky_particle::RESULT_JOIN;
+            }
+            return sticky_particle::RESULT_NONE;
+        }
 
-				this->position += (rand() % 2 ? 1 : -1) * Position::unit_vectors[rand() % Position::dimension]; //TODO generator
-				return particle<Position>::RESULT_NONE;
-			}
+        inline friend
+        char interact(const sticky_particle& particle1,
+                      const sticky_particle& particle2)
+        {
+            if (abs2(particle1.position - particle2.position) <= 1.1)
+                return sticky_particle::RESULT_JOIN;
+            else
+                return sticky_particle::RESULT_NONE;
+        }
+
+        TRIVIAL_DEFINE_VISITABLE(sticky_particle);
 	};
 }
 

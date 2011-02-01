@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "flat_position.hpp"
+#include "position.hpp"
 #include "particle.hpp"
 #include "cluster.hpp"
 #include "bath.hpp"
@@ -17,16 +17,15 @@ int main(int args, char ** argv)
 
 	const unsigned size = 0;
 	const unsigned dimensions = 2;
-	typedef flat_position<dimensions> position_type;
+	typedef position<dimensions> position_type;
 	typedef sticky_particle<position_type> particle_type;
-	typedef static_cluster<position_type> cluster_type;
-	typedef diffusion_limited_bath<position_type, particle_type, cluster_type, size, 1> bath_type;
-	typedef world<position_type, particle_type, cluster_type, bath_type> world_type;
+	typedef diffusion_limited_bath<particle_type, size, 1> bath_type;
+	typedef world<particle_type, bath_type> world_type;
 
 	world_type w;
 
-	gl_visitor<position_type, particle_type, cluster_type, world_type, 1> glv(400, 400, false);
-	population_visitor<position_type, particle_type, cluster_type, world_type, false, false, true> pv;
+	gl_visitor<world_type, 1> glv(400, 400, false);
+	population_visitor<world_type, false, false, true> pv;
 
 	for(unsigned int n = 0;; n++)
 	{

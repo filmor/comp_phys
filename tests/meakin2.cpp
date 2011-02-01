@@ -11,7 +11,7 @@
 
 using namespace trivial;
 
-int main(int args, char ** argv)
+int main()
 {
 	srand(time(0));
 
@@ -20,15 +20,14 @@ int main(int args, char ** argv)
 	const unsigned particles = size * size * 0.1;
 	typedef periodic_position<dimension, size> position_type;
 	typedef sticky_particle<position_type> particle_type;
-	typedef sticky_cluster<position_type> cluster_type;
-	typedef static_bath<position_type, particle_type, cluster_type, size, particles> bath_type;
-	typedef world<position_type, particle_type, cluster_type, bath_type> world_type;
+	typedef static_bath<particle_type, size, particles> bath_type;
+	typedef world<particle_type, bath_type> world_type;
 
 	world_type w;
-	gl_visitor<position_type, particle_type, cluster_type, world_type, 2> glv(400, 400, false);
-	population_visitor<position_type, particle_type, cluster_type, world_type, true, false, false> pv;
+	gl_visitor<world_type, 2> glv(400, 400, false);
+	population_visitor<world_type, true, false, false> pv;
 
-	for(unsigned int n = 0;; n++)
+	for (unsigned int n = 0;; ++n)
 	{
 		w.accept(glv);
 		if(n % 100 == 0)
