@@ -5,6 +5,13 @@
 
 #include "visitor.hpp"
 
+#define ANA_LR 1
+#define ANA_LG 2
+#define ANA_LB 4
+#define ANA_RR 8
+#define ANA_RG 16
+#define ANA_RB 32
+
 namespace trivial
 {
 	template<typename Position, class Particle, class Cluster, class World>
@@ -171,37 +178,22 @@ namespace trivial
 		friend class gl_visitor<Position, Particle, Cluster, World>;
 
 		public:
+			char anaglyph;
+
 			void visit(particle<Position> * particle)
 			{
+				if(anaglyph)		// have to keep special drawing order and do proper colouring for anaglyphs
+					return;
 				glColor3f(1.0f, 1.0f, 1.0f);
-				glPushMatrix();
-				glTranslatef(particle->position.to_array()[0], particle->position.to_array()[1], particle->position.to_array()[2]);
-				glCallList(cube_list_);
-				glPopMatrix();
+				render(particle);
 			}
 
 			void visit(cluster<Position> * cluster)
 			{
-				glColor3f(1.0f, 1.0f, 1.0f);
-				glDisable(GL_LIGHTING);
-				glPolygonMode(GL_FRONT, GL_LINE);
-				glBegin(GL_LINE_STRIP);
-				glPushMatrix();
-				glTranslatef(cluster->get_center().to_array()[0], cluster->get_center().to_array()[1], cluster->get_center().to_array()[2]);
-				gluSphere(quadric_, cluster->get_radius(), this->tesselation, this->tesselation);
-				glPopMatrix();
-				glEnd();
-				glPolygonMode(GL_FRONT, GL_FILL);
-				glEnable(GL_LIGHTING);
-
+				if(anaglyph)		// have to keep special drawing order and do proper colouring for anaglyphs
+					return;
 				glColor3f(1.0f, 0.0f, 0.0f);
-				for(unsigned n = 0; n < cluster->get_particles().size(); ++n)
-				{
-					glPushMatrix();
-					glTranslatef(cluster->get_particles()[n]->position.to_array()[0], cluster->get_particles()[n]->position.to_array()[1], cluster->get_particles()[n]->position.to_array()[2]);
-					glCallList(cube_list_);
-					glPopMatrix();
-				}
+				render(cluster);
 			}
 
 			void visit(World * world)
@@ -220,7 +212,23 @@ namespace trivial
 					glRotatef(angle_, 0.0f, 1.0f, 0.0f);
 					this->view_changed_ = false;
 				}
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+				if(!anaglyph)
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				else
+				{
+					glColor3f(1.0f, 1.0f, 1.0f);
+
+					glColorMask(anaglyph & ANA_LR, anaglyph & ANA_LG, anaglyph & ANA_LB, false);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					render(world);
+					
+					glColorMask(anaglyph & ANA_RR, anaglyph & ANA_RG, anaglyph & ANA_RB, false);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					glRotatef(-3.0f / M_PI, 0.0f, 1.0f, 0.0f);	// focal point is origin; eye separation e considered "stressless" if
+					render(world);					// e = distance_ / 60, i.e. to first order at an angle 3/pi
+					glRotatef(3.0f / M_PI, 0.0f, 1.0f, 0.0f);
+				}
 			}
 
 		private:
@@ -228,7 +236,7 @@ namespace trivial
 			int cube_list_;
 			GLUquadricObj * quadric_;
 
-			gl_visitor_3d() : distance_(100.0f), angle_(0), quadric_(gluNewQuadric())
+			gl_visitor_3d() : anaglyph(0), distance_(100.0f), angle_(0), quadric_(gluNewQuadric())
 			{
 				glEnable(GL_CULL_FACE);
 
@@ -280,6 +288,38 @@ namespace trivial
 				distance_ -= 10 * wheel;
 				glFogf(GL_FOG_END, 2 * distance_);
 				this->view_changed_ = true;
+			}
+
+			void render(particle<Position> * particle)
+			{
+				glPushMatrix();
+				glTranslatef(particle->position.to_array()[0], particle->position.to_array()[1], particle->position.to_array()[2]);
+				glCallList(cube_list_);
+				glPopMatrix();
+			}
+
+			void render(cluster<Position> * cluster)
+			{
+				glDisable(GL_LIGHTING);
+				glPolygonMode(GL_FRONT, GL_LINE);
+				glPushMatrix();
+				glTranslatef(cluster->get_center().to_array()[0], cluster->get_center().to_array()[1], cluster->get_center().to_array()[2]);
+				gluSphere(quadric_, cluster->get_radius(), this->tesselation, this->tesselation);
+				glPopMatrix();
+				glPolygonMode(GL_FRONT, GL_FILL);
+				glEnable(GL_LIGHTING);
+
+				for(unsigned n = 0; n < cluster->get_particles().size(); ++n)
+					render(cluster->get_particles()[n]);
+			}
+
+			void render(World * world)
+			{
+				for(unsigned n = 0; n < world->get_particles().size(); ++n)
+					render(world->get_particles()[n]);
+
+				for(unsigned n = 0; n < world->get_clusters().size(); ++n)
+					render(world->get_clusters()[n]);
 			}
 	};
 }
