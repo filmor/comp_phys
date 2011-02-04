@@ -5,41 +5,41 @@
 #include "particle.hpp"
 #include "bath.hpp"
 #include "world.hpp"
-//#include "population_visitor.hpp"
+#include "population_visitor.hpp"
 #include "gl_visitor.hpp"
 
 using namespace trivial;
 
 int main()
 {
-	srand(time(0));
+    srand(time(0));
 
-	const unsigned size = 800;
-	const unsigned dimension = 2;
-	typedef position<dimension> position_type;
-	typedef sticky_particle<position_type> particle_type;
-	typedef uniform_bath<particle_type, size, 1> bath_type;
-	typedef world<particle_type, bath_type> world_type;
+    const unsigned size = 800;
+    const unsigned dimension = 2;
+    typedef position<dimension> position_type;
+    typedef sticky_particle<position_type> particle_type;
+    typedef uniform_bath<particle_type, size, 1> bath_type;
+    typedef world<particle_type, bath_type> world_type;
 
-	world_type w;
+    world_type w;
 
     world_type::cluster_type c;
-	position_type p;
-	c.add_particle(particle_type(p));
-	p += get_unit_vector<position_type>(0);
-	c.add_particle(particle_type(p));
-	w.add_cluster(c);
+    position_type p;
+    c.add_particle(particle_type(p));
+    p += get_unit_vector<position_type>(0);
+    c.add_particle(particle_type(p));
+    w.add_cluster(c);
 
-	gl_visitor<world_type, 1> glv(400, 400, false);
-//	population_visitor<world_type, true, false, false> pv;
+    gl_visitor<world_type> & glv = gl_visitor<world_type>::visitor();
+    population_visitor<world_type, true, false, false> pv;
 
-	for(unsigned int n = 0;; n++)
-	{
-		if(n % (unsigned)1E7 == 0)
-		{
-			w.accept(glv);
-//			w.accept(pv);
-		}
-		w.step();
-	}
+    for(unsigned int n = 0;; n++)
+    {
+        if(n % (unsigned)1E7 == 0)
+        {
+            w.accept(glv);
+            w.accept(pv);
+        }
+        w.step();
+    }
 }
