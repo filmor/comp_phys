@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <iostream>
+#include <random>
 
 #include "position.hpp"
 #include "particle.hpp"
@@ -20,19 +20,23 @@ int main(int args, char ** argv)
 	typedef position<dimensions> position_type;
 	typedef sticky_particle<position_type> particle_type;
 	typedef diffusion_limited_bath<particle_type, size, 1> bath_type;
-	typedef world<particle_type, bath_type> world_type;
+	typedef world<particle_type, bath_type, std::minstd_rand> world_type;
 
 	world_type w;
 
 	gl_visitor<world_type, 1> glv(400, 400, false);
 	population_visitor<world_type, false, false, true> pv;
 
+    unsigned f = 0;
 	for(unsigned int n = 0;; n++)
 	{
 		if(n % 1000000 == 0)
 		{
 			w.accept(glv);
 			w.accept(pv);
+            ++f;
+            if (f > 12)
+                break;
 		}
 		w.step();
 	}
