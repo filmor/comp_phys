@@ -4,8 +4,9 @@
 #include <vector>
 #include <algorithm>
 #include <boost/optional.hpp>
+#include <boost/foreach.hpp>
 
-#include "particle.hpp"
+#include "interaction.hpp"
 #include "visitor.hpp"
 #include "hyper_cube.hpp"
 
@@ -18,9 +19,8 @@ namespace trivial
     public:
         typedef Particle particle_type;
         typedef typename Particle::position_type position_type;
-        typedef vector<position_type::dimension, float> float_vector;
 
-        cluster() : data_(3), count_(0), size_(3)
+        cluster() : data_(3), count_(0)
         {}
 
         void add_particle(Particle const& p)
@@ -32,20 +32,24 @@ namespace trivial
             ///       supports this directly (vector<N> is iterable!)
             if (difference2 > radius2_)
             {
-                float_vector pos (p.position);
-                // Construct new center_
-                center_ += 0.5f * (1 - radius_ / std::sqrt(difference2))
-                                * (relative_position - center_);
+                typename position_type::float_vector_type pos (p.position);
+                // Construct new offset_
+/*                offset_ += 0.5f * (1 - radius_ / std::sqrt(difference2))
+                                * (relative_position - offset_);
 
                 for (unsigned i = 0; i < origin_.size(); ++i)
                     // TODO Round correctly!
-                    origin_[i] += int(center_[i] + 0.5f);
-
-                data_.grow_around(origin_);
+                    origin_[i] += int(offset_[i] + 0.5f); */
 
                 // Should work for now. But still, investigate!
                 radius2_ = difference2;
                 radius_ = std::sqrt(radius2_);
+
+                if (radius_ >= data_.get_radius())
+                    // TODO: It should grow around new_origin_ - origin_
+                    //       and to the nearest power of 2 greater than
+                    //       radius_
+                    data_.grow();
             }
 
             data_[relative_position] = p;
@@ -54,12 +58,19 @@ namespace trivial
 
         void merge (cluster const& other)
         {
-            // TODO
+            BOOST_FOREACH(particle_type const& p, other.particles_)
+            {
+                add_particle(p);
+            }
+            // TODO: Remove particle from other
         }
 
         bool has_particle_at(position_type const& p) const
         {
-            return data_[p - origin_].is_initialized();
+            if (abs_1(p) <= data_.get_radius())
+                return data_[p - origin_].is_initialized();
+            else
+                return false;
         }
 
         std::vector<particle_type> const& get_particles () const
@@ -77,28 +88,23 @@ namespace trivial
             return radius_;
         }
 
-        template <typename T>
-        void accept (visitor<T>& visitor)
-        {
-            visitor.visit(*this);
-        }
-        
-        template <typename T>
-        void accept (const_visitor<T>& visitor) const
-        {
-            visitor.visit(*this);
-        }
+        TRIVIAL_DEFINE_VISITABLE(cluster);
 
-        void move () {}
+        void move (typename position_type::vector_type const& vec)
+        {
+            // origin_ += vec;
+            // TODO: Don't move clusters for now, useful only in meakin2 where
+            //       we still have to define sticky_clusters new semantic
+        }
 
         inline friend
-        char interact (cluster const& lhs, cluster const& rhs)
+        interaction::result_type interact (cluster const& lhs, cluster const& rhs)
         {
-            return 0;
+            return interaction::NONE;
         }
 
     private:
-        float_vector center_;
+        // typename position_type::float_vector_type offset_;
         position_type origin_;
         
         hyper_cube<boost::optional<Particle>, position_type::dimension>
@@ -139,7 +145,7 @@ namespace trivial
 
 				for(unsigned n = 0; n < clusters.size(); ++n)
 				{
-					if(clusters[n] == this || abs(clusters[n]->get_center() - this->center_) > clusters[n]->get_radius() + this->radius_)
+					if(clusters[n] == this || abs(clusters[n]->get_center() - this->offset_) > clusters[n]->get_radius() + this->radius_)
 						continue;
 
 					for(unsigned m = 0; m < clusters[n]->get_particles().size(); ++m)
@@ -163,7 +169,7 @@ namespace trivial
 					Position shift = (rand() % 2 ? 1 : -1) * Position::unit_vectors[rand() % Position::dimension]; //TODO generator
 					for(unsigned n = 0; n < this->particles_.size(); ++n)
 						this->particles_[n]->position += shift;
-					this->center_ += shift;
+					this->offset_ += shift;
 					this->map_origin_ += shift;
 				}
 

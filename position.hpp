@@ -11,27 +11,16 @@ namespace trivial
 	class position : public vector<N>
 	{
     public:
+        typedef vector<N, int> vector_type;
+        typedef vector<N, float> float_vector_type;
+
         position () {}
 
         position (const vector<N>& other)
             : vector<N> (other)
         {}
-
-        static const unsigned dimension = N;
-
-        template<unsigned M>
-        friend std::ostream & operator<<(std::ostream & out, const position<M> & p);
 	};
 
-	template<unsigned N>
-	std::ostream & operator<<(std::ostream & out, const position<N> & p)
-	{
-		out << "(";
-		for(unsigned n = 0; n < N - 1; ++n)
-        		out << p[n] << ",";
-		out << p[N - 1] << ")";
-        	return out;
-	}
 }
 
 #endif

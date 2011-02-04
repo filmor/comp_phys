@@ -14,7 +14,7 @@ namespace trivial
                   , boost::equality_comparable<vector<N>>
     {
         typedef std::array<T, N> base_type;
-        static const std::size_t dimension = N;
+        enum { dimension = N };
 
         vector ()
         {
@@ -111,8 +111,19 @@ namespace trivial
             initialized = true;
         }
 
-        return unit_vectors[std::min(n, T::dimension)];
+        return unit_vectors[std::min(n, unsigned(T::dimension))];
     }
+
+	template<unsigned N>
+	std::ostream & operator<<(std::ostream & out, const vector<N> & p)
+	{
+		out << "(";
+		for(unsigned n = 0; n < N - 1; ++n)
+        		out << p[n] << ",";
+		out << p[N - 1] << ")";
+        	return out;
+	}
+    
 }
 
 #endif

@@ -73,19 +73,22 @@ namespace trivial
 
                 // TODO: MultiIndex: We need a vector of positions of particles
                 //       as well as a map of positions to particles
-                /*
+                
 				for(unsigned n = 0; n < cluster.get_particles().size(); ++n)
 				{
 					glColor3f(1.0f, 0.0f, 0.0f);
 					glBegin(GL_POINTS);
-					// glVertex2i(cluster->get_particles()[n]->position.to_array()[0], cluster->get_particles()[n]->position.to_array()[1]);
+					glVertex2i(
+                            cluster.get_particles()[n].position[0],
+                            cluster.get_particles()[n].position[1]
+                            );
 					glEnd();
-				} */
+				}
 			}
 
 			void visit(World const& world)
 			{
-				glFlush();
+				// glFlush();
 				glfwSwapBuffers();
 				if(limit_fps_)
 					glfwSleep(0.1);

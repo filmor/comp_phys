@@ -8,7 +8,7 @@ def set_options(opt):
     opt.tool_options('boost')
 
 def configure(conf):
-    for i in """-Wall -O2 -g3 -march=native -std=c++0x""".split():
+    for i in """-Wall -O2 -Wno-sign-compare -g3 -march=native -std=c++0x""".split():
         conf.env.append_value('CXXFLAGS', i)
 
     conf.env.append_value('LINKFLAGS', '-pg')
@@ -21,8 +21,8 @@ def configure(conf):
     conf.check_cxx(lib='GL', uselib_store='GLFW')
     conf.check_cxx(lib='GLU', uselib_store='GLFW')
 
-    conf.check_boost(lib='random', min_version='1.42',
-            uselib_store='BOOST')
+#    conf.check_boost(lib='random', min_version='1.42',
+#            uselib_store='BOOST')
 
 def build(bld):
     sources = bld.glob("*.cpp")
@@ -30,6 +30,6 @@ def build(bld):
         bld(features = 'cxx cprogram',
             source = [i] + sources,
             target="trivial-%s" % (splitext(basename(i))[0]),
-            uselib="BOOST_RANDOM GLFW",
+            uselib="GLFW",
             includes=".. .")
 

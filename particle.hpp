@@ -3,79 +3,57 @@
 
 #include <vector>
 
+#include "interaction.hpp"
 #include "position.hpp"
 #include "cluster.hpp"
 #include "visitor.hpp"
 
 namespace trivial
 {
-	template<typename Position>
-	class particle
-	{
-    public:
-        enum result_type { RESULT_NONE, RESULT_JOIN };
 
+    template <typename Position>
+    class sticky_particle
+    {
+    public:
         typedef Position position_type;
 
-        Position position;	
+        // TODO: Encapsulate or remove
+        position_type position; 
 
-        particle(const Position & pos) : position(pos) {};
+        sticky_particle(const Position& pos) : position(pos) {}
 
-        inline friend
-        result_type interact(const particle&, const particle&)
+        friend interaction::result_type
+            interact(const sticky_particle& particle,
+                     const cluster<sticky_particle>& cluster)
         {
-            return RESULT_NONE;
-        }
-
-        inline friend
-        result_type interact(const particle&, const cluster<particle>&)
-        {
-            return RESULT_NONE;
-        }
-
-        inline friend
-        std::ostream& operator<< (std::ostream& os, particle const& part)
-        {
-            return os << ".";
-        }
-
-        TRIVIAL_DEFINE_VISITABLE(particle);
-
-        void move() {}
-	};
-
-	template <typename Position>
-	class sticky_particle : public particle<Position> // TODO sticky factor
-	{
-    public:
-        sticky_particle(const Position& pos) : particle<Position>(pos) {};
-
-        inline friend
-        char interact(const sticky_particle& particle,
-                      const cluster<sticky_particle>& cluster)
-        {
+            // TODO: Stickyness
             for (unsigned n = 0; n < Position::dimension * 2; ++n)
             {
                 const Position p = particle.position + (2 * (n % 2) - 1) 
                                  * get_unit_vector<Position>(n / 2);
                 if (cluster.has_particle_at(p))
-                    return sticky_particle::RESULT_JOIN;
+                    return interaction::MERGE;
             }
-            return sticky_particle::RESULT_NONE;
+            return interaction::NONE;
         }
 
-        inline friend
-        char interact(const sticky_particle& particle1,
-                      const sticky_particle& particle2)
+        friend interaction::result_type
+            interact(const sticky_particle& particle1,
+                     const sticky_particle& particle2)
         {
-            if (abs2(particle1.position - particle2.position) <= 1.1)
-                return sticky_particle::RESULT_JOIN;
+            if (abs_1(particle1.position - particle2.position) <= 1)
+                return interaction::MERGE;
             else
-                return sticky_particle::RESULT_NONE;
+                return interaction::NONE;
+        }
+
+        void move(typename Position::vector_type const& vec)
+        {
+            position += vec;
         }
 
         TRIVIAL_DEFINE_VISITABLE(sticky_particle);
-	};
+    };
 }
 
 #endif

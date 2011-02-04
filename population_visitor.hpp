@@ -2,6 +2,7 @@
 #define TRIVIAL_POPULATION_VISITOR_HPP
 
 #include "visitor.hpp"
+#include "print.hpp"
 
 namespace trivial
 {
@@ -16,7 +17,7 @@ namespace trivial
 			if(!VisitParticle)
 				return;
 
-			cout << "particle at " << particle.position << endl;
+			print ("particle at", particle.position);
 		}
 
 		void visit(typename World::cluster_type const& cluster)
@@ -24,11 +25,10 @@ namespace trivial
 			if(!VisitCluster)
 				return;
 
-			cout << "cluster at "
-                 << cluster.get_center() 
-                 << " radius: " << cluster.get_radius()
-                 << ", particles: " << cluster.get_particles().size()
-                 << endl;
+		    print ("cluster at", cluster.get_center(),
+                   "radius:", cluster.get_radius(),
+                   "particles:", cluster.get_particles().size()
+                  );
 		}
 
 		void visit(World const& world)
@@ -38,12 +38,13 @@ namespace trivial
 
 			unsigned sum = 0;
 			for(unsigned n = 0; n < world.get_clusters().size(); ++n)
-//				sum += world.get_clusters()[n].get_particle_count();
+				sum += world.get_clusters()[n].get_particles().size();
 				;
 
-			cout << "Currently " << world.get_particles().size()
-                 << " free particle(s) and " << sum << " in  "
-                 << world.get_clusters().size() << " cluster(s)." << endl;
+			print("Currently ", world.get_particles().size(),
+                  "free particle(s) and", sum, "in",
+                  world.get_clusters().size(), "cluster(s)."
+                 );
 		}
 	};
 }
