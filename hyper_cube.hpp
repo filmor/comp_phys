@@ -49,9 +49,9 @@ namespace trivial
             // Fill new vector
             for (unsigned i = 0; i < data_.size(); ++i)
             {
-                auto new_index = get_int_index(get_vec_index(i, size_), new_size);
+                const auto new_index = get_int_index(get_vec_index(i, size_), new_size);
                 // print("moving object from", i, "to", new_index);
-                new_data.at(new_index) = data_[i];
+                new_data[new_index] = data_[i];
             }
 
             // print("size", size_);
@@ -62,17 +62,11 @@ namespace trivial
 
         T& operator[] (index_type const& index)
         {
-            for (unsigned i = 0; i < index.size(); ++i)
-                if (unsigned(std::abs(index[i])) > size_)
-                    throw std::out_of_range("");
             return data_[get_int_index(index, size_)];
         }
 
         T const& operator[] (index_type const& index) const
         {
-            for (unsigned i = 0; i < index.size(); ++i)
-                if (unsigned(std::abs(index[i])) > size_)
-                    throw std::out_of_range("");
             return data_[get_int_index(index, size_)];
         }
 
