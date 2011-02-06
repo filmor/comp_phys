@@ -24,11 +24,11 @@ int main(int args, char ** argv)
 
 	world_type w;
 
-	gl_visitor<world_type>& glv = gl_visitor<world_type>::visitor();
-	population_visitor<world_type, false, false, true> pv;
+	gl_visitor<world_type> glv;
+	population_visitor<world_type> pv;
   
     // typical red/cyan glasses
-	// ((gl_visitor_3d<world_type> &)glv).anaglyph = ANA_LR | ANA_RG | ANA_RB;
+	glv.set_anaglyph(ANA_RED, ANA_GREEN | ANA_BLUE);
 
 	for(unsigned int n = 0;; n++)
 	{

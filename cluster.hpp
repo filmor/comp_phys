@@ -88,8 +88,6 @@ namespace trivial
             return radius_;
         }
 
-        TRIVIAL_DEFINE_VISITABLE(cluster);
-
         void move (typename position_type::vector_type const& vec)
         {
             // origin_ += vec;
@@ -118,8 +116,8 @@ namespace trivial
 	};
 
     /*
-	template<typename Position>
-	class sticky_cluster : public static_cluster<Position> //TODO sticky factor
+	template <typename Particle>
+	class sticky_cluster : public cluster<Position>
 	{
 		public:
 			char interact(std::vector<particle<Position> *> & particles, const std::vector<cluster<Position> *> & clusters)

@@ -21,6 +21,7 @@ namespace trivial
         typedef typename Particle::position_type    position_type;
         typedef typename position_type::vector_type vector_type;
         typedef cluster<particle_type>              cluster_type;
+        static const unsigned dimension = position_type::dimension;
 
         world(RandomNumberGenerator rng = RandomNumberGenerator())
             : gen_(rng)
@@ -32,34 +33,14 @@ namespace trivial
             clusters_.push_back(cl);
         }
 
+        void add_particle(particle_type const& p)
+        {
+            particles_.push_back(p);
+        }
+
         void step ();
 
-        void accept (world_visitor<world>& v)
-        {
-            for(unsigned n = 0; n < particles_.size(); ++n)
-                particles_[n].accept(
-                    static_cast<visitor<particle_type>&> (v)
-                    );
-            for(unsigned n = 0; n < clusters_.size(); ++n)
-                clusters_[n].accept(
-                    static_cast<visitor<cluster_type>&> (v));
-            ((visitor<world> &)v).visit(*this);
-        }
-
-        void accept (const_world_visitor<world>& v) const
-        {
-            for (unsigned n = 0; n < particles_.size(); ++n)
-                particles_[n].accept(
-                    static_cast<const_visitor<particle_type>&> (v)
-                    );
-
-            for (unsigned n = 0; n < clusters_.size(); ++n)
-                clusters_[n].accept(
-                    static_cast<const_visitor<cluster_type>&> (v)
-                    );
-            
-            static_cast<const_visitor<world>&> (v).visit(*this);
-        }
+        TRIVIAL_DEFINE_VISITABLE(world)
 
         std::vector<cluster_type> const& get_clusters() const
         {

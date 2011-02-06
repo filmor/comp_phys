@@ -51,8 +51,6 @@ namespace trivial
         {
             position += vec;
         }
-
-        TRIVIAL_DEFINE_VISITABLE(sticky_particle);
     };
 }
 

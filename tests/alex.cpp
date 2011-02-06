@@ -30,8 +30,8 @@ int main()
     c.add_particle(particle_type(p));
     w.add_cluster(c);
 
-    gl_visitor<world_type> & glv = gl_visitor<world_type>::visitor();
-    population_visitor<world_type, true, false, false> pv;
+    gl_visitor<world_type> glv;
+    population_visitor<world_type> pv;
 
     for(unsigned int n = 0;; n++)
     {

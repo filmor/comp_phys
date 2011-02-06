@@ -24,8 +24,8 @@ int main(int args, char ** argv)
 
 	world_type w;
 
-	gl_visitor<world_type>& glv = gl_visitor<world_type>::visitor();
-	population_visitor<world_type, false, false, true> pv;
+	gl_visitor<world_type> glv;
+	population_visitor<world_type> pv;
 
     unsigned f = 0;
 	for(unsigned int n = 0;; n++)

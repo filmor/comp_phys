@@ -24,8 +24,8 @@ int main()
 	typedef world<particle_type, bath_type> world_type;
 
 	world_type w;
-	gl_visitor<world_type> & glv = gl_visitor<world_type>::visitor();
-	population_visitor<world_type, true, false, false> pv;
+	gl_visitor<world_type> glv;
+	population_visitor<world_type> pv;
 
 	for (unsigned int n = 0;; ++n)
 	{
