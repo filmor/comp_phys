@@ -1,33 +1,36 @@
-VERSION=''
+VERSION='0.1'
 APPNAME='trivial'
 
-from os.path import splitext, basename
+top = '.'
+build = 'build'
 
-def set_options(opt):
-    opt.tool_options('compiler_cxx')
-    opt.tool_options('boost')
+def options(opt):
+    opt.load('compiler_cxx')
+    opt.add_option('--profile', action='store', default=True,
+                   help="Enable profiling")
 
 def configure(conf):
-    for i in """-Wall -O2 -Wno-sign-compare -g3 -march=native -std=c++0x""".split():
-        conf.env.append_value('CXXFLAGS', i)
+    flags = "-Wall -Wno-sign-compare -std=c++0x".split()
+    optimize = "-O2 -march=native".split()
+    debug = "-g3"
 
-    conf.check_tool('compiler_cxx')
-    conf.check_tool('boost')
+    conf.load('compiler_cxx')
 
-    conf.check_cxx(lib='glfw', uselib_store='GLFW')
-    conf.check_cxx(lib='GL', uselib_store='GLFW')
-    conf.check_cxx(lib='GLU', uselib_store='GLFW')
-    conf.check_cxx(lib='profiler', uselib_store='PROFILER')
+    conf.env.append_value('CXXFLAGS', flags)
+    conf.env.append_value('CXXFLAGS', optimize)
+    conf.env.append_value('CXXFLAGS', debug)
 
-#    conf.check_boost(lib='random', min_version='1.42',
-#            uselib_store='BOOST')
+    conf.check_cxx(lib='glfw', uselib_store='OPENGL')
+    conf.check_cxx(lib='GL', uselib_store='OPENGL')
+    conf.check_cxx(lib='GLU', uselib_store='OPENGL')
 
-def build(bld):
-    sources = bld.glob("*.cpp")
-    for i in bld.glob("tests/*.cpp"):
-        bld(features = 'cxx cprogram',
-            source = [i] + sources,
-            target="trivial-%s" % (splitext(basename(i))[0]),
-            uselib="GLFW PROFILER",
-            includes=".. .")
+    if conf.options.profile:
+        conf.check_cxx(lib='profiler', uselib_store='PROFILER')
+
+def build(ctx):
+    ctx.objects(source=ctx.path.ant_glob("*.cpp"),
+                target='objects')
+
+    sources = ctx.path.ant_glob("*.cpp")
+    ctx.recurse("tests")
 

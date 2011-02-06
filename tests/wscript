@@ -1,0 +1,8 @@
+from os.path import splitext
+
+def build(ctx):
+    for i in ctx.path.ant_glob("*.cpp"):
+        ctx.program(source=i.name,
+                    target=splitext(i.name)[0],
+                    use="objects OPENGL PROFILER",
+                    includes="..")
