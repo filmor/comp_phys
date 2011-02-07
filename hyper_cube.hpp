@@ -1,13 +1,9 @@
 #ifndef TRIVIAL_HYPER_CUBE_HPP
 #define TRIVIAL_HYPER_CUBE_HPP
 
-#include "vector.hpp"
-
-#include "print.hpp"
-
 #include <vector>
-#include <cmath>
-#include <stdexcept>
+
+#include "vector.hpp"
 
 namespace trivial
 {

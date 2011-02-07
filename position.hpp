@@ -2,7 +2,6 @@
 #define TRIVIAL_POSITION_HPP
 
 #include "vector.hpp"
-#include <ostream>
 
 namespace trivial
 {

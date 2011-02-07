@@ -3,11 +3,8 @@
 
 #include <vector>
 #include <random>
-#include <boost/foreach.hpp>
 
-#include "position.hpp"
 #include "cluster.hpp"
-#include "bath.hpp"
 #include "visitor.hpp"
 
 namespace trivial
@@ -38,7 +35,7 @@ namespace trivial
             particles_.push_back(p);
         }
 
-        void step ();
+        inline void step ();
 
         TRIVIAL_DEFINE_VISITABLE(world)
 

@@ -2,18 +2,13 @@
 #define TRIVIAL_BATH_HPP
 
 #include <vector>
-#include <array>
-#include <iostream>
 
-#include "print.hpp"
-#include "position.hpp"
-#include "particle.hpp"
 #include "cluster.hpp"
 
 namespace trivial
 {
 
-	template<class Particle, int Size, unsigned FreeParticles>
+	template <class Particle, int Size, unsigned FreeParticles>
 	class uniform_bath
 	{
     public:
@@ -57,7 +52,7 @@ namespace trivial
         }
 	};
 
-	template<class Particle, int Size, unsigned FreeParticles>
+	template <class Particle, int Size, unsigned FreeParticles>
 	class diffusion_limited_bath
 	{
     public:
@@ -101,7 +96,7 @@ namespace trivial
                 position_type pos;
                 for(bool collision = true; collision;)
                 {
-                    std::array<float, position_type::dimension> e;
+                    typename position_type::float_vector_type e;
                     float mod = 0;
                     for(unsigned m = 0; m < e.size(); ++m)
                     {

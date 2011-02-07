@@ -1,5 +1,7 @@
 #include "gl_visitor.hpp"
 
+#include <GL/glfw.h>
+
 namespace trivial
 {
 namespace impl

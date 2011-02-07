@@ -1,14 +1,11 @@
 #ifndef TRIVIAL_PERIODIC_POSITION_HPP
 #define TRIVIAL_PERIODIC_POSITION_HPP
 
-#include <vector>
-#include <boost/operators.hpp>
-
 #include "position.hpp"
 
 namespace trivial
 {
-	template<unsigned N, std::size_t Size>
+	template <unsigned N, std::size_t Size>
 	class periodic_position : public position<N>
 	{
     public:

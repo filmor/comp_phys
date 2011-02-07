@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <iostream>
 
 #include "position.hpp"
 #include "particle.hpp"

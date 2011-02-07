@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "interaction.hpp"
-#include "position.hpp"
 #include "cluster.hpp"
 #include "visitor.hpp"
 

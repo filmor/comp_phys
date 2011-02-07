@@ -1,5 +1,7 @@
 #include "interaction.hpp"
 
+#include <boost/foreach.hpp>
+
 namespace trivial
 {
 
@@ -116,7 +118,6 @@ namespace trivial
                 auto result = interact(clusters_[i], clusters_[j]);
                 if (result == interaction::MERGE)
                 {
-                    print("MERGE");
                     clusters_to_join.push_back(j);
                 }
             }                    

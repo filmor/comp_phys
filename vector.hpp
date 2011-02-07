@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <array>
+#include <ostream>
 #include <boost/operators.hpp>
 
 namespace trivial 

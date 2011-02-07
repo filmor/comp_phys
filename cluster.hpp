@@ -2,12 +2,10 @@
 #define TRIVIAL_CLUSTER_HPP
 
 #include <vector>
-#include <algorithm>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 
 #include "interaction.hpp"
-#include "visitor.hpp"
 #include "hyper_cube.hpp"
 
 namespace trivial

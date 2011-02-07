@@ -2,19 +2,17 @@
 #define TRIVIAL_GL_VISITOR_HPP
 
 #include <boost/mpl/if.hpp>
-#include <GL/glfw.h>
 
 #include "visitor.hpp"
 #include "vector.hpp"
-#include "print.hpp"
-
-#define ANA_NONE 0
-#define ANA_RED 1
-#define ANA_GREEN 2
-#define ANA_BLUE 4
 
 namespace trivial
 {
+    enum { ANA_NONE = 0,
+           ANA_RED = 1,
+           ANA_GREEN = 2,
+           ANA_BLUE = 4
+    };
 
     namespace impl
     {
@@ -40,8 +38,11 @@ namespace trivial
 
         private:
             double last_mouse_event_;
-
-            static void GLFWCALL resize(int width, int height);
+#if defined(_WIN32)
+            static void __stdcall resize (int width, int height);
+#else
+            static void resize (int width, int height);
+#endif
         };
 
         class gl_visitor_2d : public gl_visitor_base
