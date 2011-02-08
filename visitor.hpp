@@ -7,14 +7,14 @@ namespace trivial
 	template <class Visited>
     struct visitor
 	{
-        virtual void visit(Visited& visited) {}
+        virtual void visit(Visited& visited) = 0;
         virtual ~visitor() {}
 	};
     
     template <class Visited>
     struct const_visitor
     {
-        virtual void visit(Visited const& visited) {}
+        virtual void visit(Visited const& visited) = 0;
         virtual ~const_visitor() {}
     };
 
