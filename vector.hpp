@@ -115,8 +115,8 @@ namespace trivial
         return unit_vectors[std::min(n, unsigned(T::dimension))];
     }
 
-	template<unsigned N>
-	std::ostream & operator<<(std::ostream & out, const vector<N> & p)
+	template<unsigned N, typename T>
+	std::ostream & operator<<(std::ostream & out, const vector<N, T> & p)
 	{
 		out << "(";
 		for(unsigned n = 0; n < N - 1; ++n)
