@@ -36,7 +36,7 @@ namespace trivial
             return size_;
         }
 
-        void grow ()
+        void grow_around (index_type const& index)
         {
             // TODO: Assertions!
             std::size_t new_size = 2 * size_;
@@ -45,13 +45,11 @@ namespace trivial
             // Fill new vector
             for (unsigned i = 0; i < data_.size(); ++i)
             {
-                const auto new_index = get_int_index(get_vec_index(i, size_), new_size);
-                // print("moving object from", i, "to", new_index);
+                const auto new_index = get_int_index(get_vec_index(i, size_)-index,
+                                                     new_size);
                 new_data[new_index] = data_[i];
             }
 
-            // print("size", size_);
-            // print("new_size", new_size);
             size_ = new_size;
             data_.swap(new_data);
         }

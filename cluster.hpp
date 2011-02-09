@@ -5,6 +5,7 @@
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 
+#include "print.hpp"
 #include "interaction.hpp"
 #include "hyper_cube.hpp"
 
@@ -26,28 +27,35 @@ namespace trivial
             auto relative_position = p.position - origin_;
             auto difference2 = abs2(relative_position);
             
-            /// TODO: hyper_cube indexable by vector<N> or see if multi_array
-            ///       supports this directly (vector<N> is iterable!)
             if (difference2 > radius2_)
             {
-                typename position_type::float_vector_type pos (p.position);
-                // Construct new offset_
-/*                offset_ += 0.5f * (1 - radius_ / std::sqrt(difference2))
-                                * (relative_position - offset_);
+                auto new_radius = std::sqrt(difference2);
 
+                // Construct new offset_:
+                // offset_ has to move along relative_position
+                // by 1/2 * (1 - radius / new_radius)
+                offset_ += 0.5f * (radius_ / new_radius)
+                                * (relative_position - offset_);
+                print("offset", offset_);
+
+                typename position_type::vector_type origin_diff;
                 for (unsigned i = 0; i < origin_.size(); ++i)
-                    // TODO Round correctly!
-                    origin_[i] += int(offset_[i] + 0.5f); */
+                    origin_diff[i] = int(offset_[i] + 
+                                         (offset_[i] > 0.0f ? +0.5f : -0.5f)
+                                        );
 
                 // Should work for now. But still, investigate!
                 radius2_ = difference2;
-                radius_ = std::sqrt(radius2_);
+                radius_ = new_radius;
 
                 if (radius_ >= data_.get_radius())
                     // TODO: It should grow around new_origin_ - origin_
                     //       and to the nearest power of 2 greater than
                     //       radius_
-                    data_.grow();
+                    data_.grow_around(origin_diff);
+
+                relative_position -= origin_diff;
+                origin_ += origin_diff;
             }
 
             data_[relative_position] = p;
@@ -65,10 +73,10 @@ namespace trivial
 
         bool has_particle_at(position_type const& p) const
         {
-            if (abs_1(p) <= data_.get_radius())
-                return data_[p - origin_].is_initialized();
-            else
-                return false;
+            if (abs_inf(p) <= data_.get_radius())
+                if (abs2(p) < radius2_ + 1)
+                    return data_[p - origin_].is_initialized();
+            return false;
         }
 
         std::vector<particle_type> const& get_particles () const
@@ -100,7 +108,7 @@ namespace trivial
         }
 
     private:
-        // typename position_type::float_vector_type offset_;
+        typename position_type::float_vector_type offset_;
         position_type origin_;
         
         hyper_cube<boost::optional<Particle>, position_type::dimension>

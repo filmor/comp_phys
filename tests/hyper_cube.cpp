@@ -17,7 +17,7 @@ int main ()
     v[1] = 0;
     DEBUG_PRINT(cube[v].is_initialized());
 
-    cube.grow();
+    cube.grow_around(v);
 
     boost::optional<int> var = 5;
     boost::optional<int> x;
