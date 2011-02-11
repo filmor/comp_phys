@@ -10,12 +10,12 @@ namespace trivial
 {
     template <unsigned N, typename T = int>
     struct vector : std::array<T, N>
-                  , boost::additive1<vector<N>>
-                  , boost::multiplicative2<vector<N>, T>
-                  , boost::equality_comparable<vector<N>>
+                  , boost::additive1<vector<N, T>>
+                  , boost::multiplicative2<vector<N, T>, T>
+                  , boost::equality_comparable<vector<N, T>>
     {
         typedef std::array<T, N> base_type;
-        enum { dimension = N };
+        static const unsigned dimension = N;
 
         vector ()
         {
@@ -24,7 +24,7 @@ namespace trivial
         }
 
         template <typename T2>
-        vector (vector<N, T2> const& other)
+        explicit vector (vector<N, T2> const& other)
         {
             for (unsigned i = 0; i < N; ++i)
                 (*this)[i] = other[i];
@@ -123,6 +123,12 @@ namespace trivial
                 out << p[n] << ",";
         out << p[N - 1] << ")";
             return out;
+    }
+
+    template <typename T>
+    T square (T const& t)
+    {
+        return t * t;
     }
     
 }

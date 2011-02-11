@@ -36,7 +36,7 @@ int main(int args, char ** argv)
             w.accept(glv);
             w.accept(pv);
             ++f;
-            if (f > 12)
+            if (f > 50)
                 break;
         }
         w.step();

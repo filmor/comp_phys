@@ -2,6 +2,7 @@
 #define TRIVIAL_PRINT_HPP
 
 #include <iostream>
+#include <cassert>
 
 namespace trivial
 {

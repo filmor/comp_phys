@@ -21,46 +21,75 @@ namespace meakin
         typedef Particle particle_type;
         typedef typename Particle::position_type position_type;
 
-        static_cluster () : data_(3)
+        static_cluster () : data_(64)
         {}
 
-        void add_particle(Particle p)
+        void add_particle (Particle p)
         {
-            p.position -= origin_;
-            auto difference2 = abs2(p.position);
-            
-            if (difference2 > radius2_)
+            if (particles_.empty())
             {
-                auto new_radius = std::sqrt(difference2);
+                ball_center_ = cube_center_ = p.position;
+                radius_ = 1;
+                radius2_ = 1;
+                // ball_carry_ is 0
+            }
+            else
+            {
+                auto diff = p.position - ball_center_;
 
-                // Construct new offset_:
-                // offset_ has to move along relative_position
-                // by 1/2 * (1 - radius / new_radius)
-                offset_ += 0.5f * (radius_ / new_radius)
-                                * (p.position - offset_);
-                // print("offset", offset_);
+                if (abs2(diff) > radius2_)
+                {
+                    typedef typename position_type::float_vector_type flt_vec_t;
 
-                typename position_type::vector_type origin_diff;
-                for (unsigned i = 0; i < origin_.size(); ++i)
-                    origin_diff[i] = int(offset_[i] + 
-                                         (offset_[i] > 0.0f ? +0.5f : -0.5f)
-                                        );
+                    float new_radius = abs(diff);
+                    flt_vec_t flt_diff = flt_vec_t(diff) - ball_carry_;
 
-                // Should work for now. But still, investigate!
-                radius2_ = difference2;
-                radius_ = new_radius;
+                    // Construct new offset_:
+                    // offset_ has to move along relative_position
+                    // by 1/2 * (1 - radius / new_radius)
+                    ball_carry_ += 0.5f * (1.0f - radius_ / new_radius)
+                                   * flt_diff;
 
-                if (radius_ >= data_.get_radius())
-                    // TODO: to the nearest power of 2 greater than
-                    //       radius_
-                    data_.grow_around(origin_diff);
+                    decltype(ball_center_) ball_center_diff;
 
-                p.position -= origin_diff;
-                origin_ += origin_diff;
+                    for (unsigned i = 0; i < ball_center_diff.size(); ++i)
+                        ball_center_diff[i] 
+                            = int(ball_carry_[i] + 
+                                    (ball_carry_[i] > 0.0f ? +0.5f : -0.5f)
+                                    );
+
+                    ball_center_ += ball_center_diff;
+                    ball_carry_  -= flt_vec_t(ball_center_diff);
+                    diff -= ball_center_diff;
+
+                    radius2_ = abs2(diff);
+                    radius_ = std::sqrt(radius2_);
+                }
+
+
+                if (abs_inf(p.position - cube_center_)
+                        > data_.get_radius())
+                {
+                    print("growing", cube_center_ - ball_center_);
+                    typename position_type::vector_type cube_center_diff;
+
+                    data_.grow_around(ball_center_, 0);
+
+                    BOOST_FOREACH( Particle& p2, particles_ )
+                    {
+                        p2.position += cube_center_ - ball_center_;
+                    }
+
+                    cube_center_ = ball_center_;
+                }
             }
 
+            // p.position is now relative to cube_center_
+            p.position -= cube_center_;
+            // assert(abs_inf(p.position) <= data_.get_radius());
             data_[p.position] = p;
             particles_.push_back(p);
+            //print(particles_.back().position);
         }
 
         void merge (static_cluster const& other)
@@ -74,10 +103,13 @@ namespace meakin
 
         bool has_particle_at(position_type const& p) const
         {
-            const auto diff = p - origin_;
-            if (abs_inf(diff) <= data_.get_radius())
-                if (abs2(diff) < radius2_ + 1)
+            if (abs2(p - ball_center_) <= radius2_ + 1.0)
+            {
+                const auto diff = p - cube_center_;
+
+                if (abs_inf(diff) <= data_.get_radius())
                     return data_[diff].is_initialized();
+            }
             return false;
         }
 
@@ -88,7 +120,10 @@ namespace meakin
         { return get_particles().size(); }
 
         position_type const& get_center() const
-        { return origin_; }
+        { return ball_center_; }
+
+        position_type const& get_cube_center() const
+        { return cube_center_; }
 
         float get_radius() const
         { return radius_; }
@@ -140,8 +175,8 @@ namespace meakin
         }
 
     protected:
-        typename position_type::float_vector_type offset_;
-        position_type origin_;
+        typename position_type::float_vector_type ball_carry_;
+        position_type ball_center_, cube_center_;
         
         hyper_cube<boost::optional<Particle>, position_type::dimension>
             data_;
@@ -157,7 +192,8 @@ namespace meakin
     public:
         void move (typename Particle::position_type::vector_type const& v)
         {
-            static_cluster<Particle>::origin_ += v;
+            static_cluster<Particle>::cube_center_ += v;
+            static_cluster<Particle>::ball_center_ += v;
         }
     };
 

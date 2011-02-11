@@ -126,7 +126,7 @@ namespace trivial
                          j != i->get_particles().end();
                          ++j)
                     {
-                        this->draw_box(j->position + i->get_center());
+                        this->draw_box(j->position + i->get_cube_center());
                     }
                 }
             }
