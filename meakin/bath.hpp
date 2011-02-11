@@ -3,17 +3,17 @@
 
 #include <vector>
 
-#include "cluster.hpp"
-
 namespace trivial
 {
+namespace meakin
+{
 
-	template <class Particle, int Size, unsigned FreeParticles>
-	class uniform_bath
-	{
+    template <class Particle, class Cluster, int Size, unsigned FreeParticles>
+    class uniform_bath
+    {
     public:
         typedef typename Particle::position_type position_type;
-        typedef cluster<Particle> cluster_type;
+        typedef Cluster cluster_type;
         typedef Particle particle_type;
 
         // TODO: Use random number generator from world
@@ -50,14 +50,14 @@ namespace trivial
             }
 
         }
-	};
+    };
 
-	template <class Particle, int Size, unsigned FreeParticles>
-	class diffusion_limited_bath
-	{
+    template <class Particle, class Cluster, int Size, unsigned FreeParticles>
+    class diffusion_limited_bath
+    {
     public:
         typedef typename Particle::position_type position_type;
-        typedef cluster<Particle> cluster_type;
+        typedef Cluster cluster_type;
         typedef Particle particle_type;
 
         diffusion_limited_bath() : seeded_(false) {}
@@ -91,7 +91,7 @@ namespace trivial
                     --create;
                 }
         
-            while(create-- > 0)	
+            while(create-- > 0) 
             {
                 position_type pos;
                 for(bool collision = true; collision;)
@@ -132,15 +132,15 @@ namespace trivial
         }
 
     private:
-		bool seeded_;
-	};
+        bool seeded_;
+    };
 
-	template<class Particle, int Size, unsigned Particles>
-	class static_bath
-	{
+    template<class Particle, class Cluster, int Size, unsigned Particles>
+    class static_bath : public uniform_bath<Particle, Cluster, Size, Particles>
+    {
     public:
         typedef typename Particle::position_type position_type;
-        typedef cluster<Particle> cluster_type;
+        typedef Cluster cluster_type;
         typedef Particle particle_type;
 
         static_bath() : done_(false) {}
@@ -150,13 +150,15 @@ namespace trivial
         {
             if(done_)
                 return;
-            uniform_bath<Particle, Size, Particles>().step(particles, clusters);
+            uniform_bath<Particle, Cluster, Size, Particles>::step(particles, clusters);
             done_ = true;
         }
 
     private:
-		bool done_;
-	};
+        bool done_;
+    };
+
+}
 }
 
 #endif

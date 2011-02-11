@@ -9,6 +9,8 @@
 
 namespace trivial
 {
+namespace meakin
+{
 
     template <typename Position>
     class sticky_particle
@@ -23,7 +25,7 @@ namespace trivial
 
         friend interaction::result_type
             interact(const sticky_particle& particle,
-                     const cluster<sticky_particle>& cluster)
+                     const static_cluster<sticky_particle>& cluster)
         {
             // TODO: Stickyness
             for (unsigned n = 0; n < Position::dimension * 2; ++n)
@@ -51,6 +53,7 @@ namespace trivial
             position += vec;
         }
     };
+}
 }
 
 #endif

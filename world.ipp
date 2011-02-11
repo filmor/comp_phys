@@ -28,8 +28,8 @@ namespace trivial
         }
     }
 
-    template <class P, class B, class Rng>
-    void world<P, B, Rng>::step()
+    template <class P, class C, class B, class Rng>
+    void world<P, C, B, Rng>::step()
     {
         bath_.step(particles_, clusters_);
 
@@ -122,14 +122,15 @@ namespace trivial
                 }
             }                    
 
+            if (!clusters_to_join.empty())
+                clusters_[i].move(generate_random_vector<vector_type>(gen_));
+
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )
             {
                 clusters_[i].merge(clusters_[index]);
                 clusters_[index] = clusters_.back();
                 clusters_.pop_back();
             }
-
-            clusters_[i].move(generate_random_vector<vector_type>(gen_));
         }
     }
 }

@@ -4,20 +4,19 @@
 #include <vector>
 #include <random>
 
-#include "cluster.hpp"
 #include "visitor.hpp"
 
 namespace trivial
 {
-	template <class Particle, class Bath,
+    template <class Particle, class Cluster, class Bath,
               class RandomNumberGenerator = std::mt19937>
-	class world
-	{
+    class world
+    {
     public:
         typedef Particle                            particle_type;
         typedef typename Particle::position_type    position_type;
         typedef typename position_type::vector_type vector_type;
-        typedef cluster<particle_type>              cluster_type;
+        typedef Cluster                             cluster_type;
         static const unsigned dimension = position_type::dimension;
 
         world(RandomNumberGenerator rng = RandomNumberGenerator())
@@ -54,7 +53,7 @@ namespace trivial
         std::vector<cluster_type> clusters_;
         Bath bath_;
         RandomNumberGenerator gen_;
-	};
+    };
 }
 
 #include "world.ipp"

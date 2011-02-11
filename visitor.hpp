@@ -4,12 +4,12 @@
 namespace trivial
 {
 
-	template <class Visited>
+    template <class Visited>
     struct visitor
-	{
+    {
         virtual void visit(Visited& visited) = 0;
         virtual ~visitor() {}
-	};
+    };
     
     template <class Visited>
     struct const_visitor

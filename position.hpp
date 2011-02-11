@@ -6,9 +6,9 @@
 namespace trivial
 {
 
-	template <unsigned N>
-	class position : public vector<N>
-	{
+    template <unsigned N>
+    class position : public vector<N>
+    {
     public:
         typedef vector<N, int> vector_type;
         typedef vector<N, float> float_vector_type;
@@ -18,7 +18,7 @@ namespace trivial
         position (const vector<N>& other)
             : vector<N> (other)
         {}
-	};
+    };
 
 }
 

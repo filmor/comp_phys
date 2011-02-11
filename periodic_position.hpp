@@ -5,9 +5,9 @@
 
 namespace trivial
 {
-	template <unsigned N, std::size_t Size>
-	class periodic_position : public position<N>
-	{
+    template <unsigned N, std::size_t Size>
+    class periodic_position : public position<N>
+    {
     public:
         periodic_position () {}
 
@@ -29,7 +29,7 @@ namespace trivial
         periodic_position& operator-=(const periodic_position& p)
         {
             for(unsigned n = 0; n < N; ++n)
-                (*this)[n] -= p.coord_[n];
+                (*this)[n] -= p[n];
             clean_coord();
             return *this;
         }
@@ -37,7 +37,7 @@ namespace trivial
         periodic_position& operator*=(const float f)
         {
             for(unsigned n = 0; n < N; ++n)
-                this->coord_[n] *= f;
+                (*this)[n] *= f;
             clean_coord();
             return *this;
         }
@@ -55,7 +55,7 @@ namespace trivial
                     (*this)[n] += Size;
             }
         }
-	};
+    };
 
 }
 
