@@ -2,6 +2,9 @@
 #define TRIVIAL_BATH_HPP
 
 #include <vector>
+#include <random>
+
+#include "print.hpp"
 
 namespace trivial
 {
@@ -16,9 +19,9 @@ namespace meakin
         typedef Cluster cluster_type;
         typedef Particle particle_type;
 
-        // TODO: Use random number generator from world
+        template<class RandomNumberGenerator>
         void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters) 
+                  std::vector<cluster_type>& clusters, RandomNumberGenerator & rng) 
         {
             for (unsigned n = particles.size(); n < FreeParticles; ++n)
             {
@@ -26,8 +29,7 @@ namespace meakin
                 for (bool collision = true; collision;)
                 {
                     for (unsigned m = 0; m < position_type::dimension; ++m)
-                        pos += get_unit_vector<position_type> (m)
-                               * ((rand() % Size) - Size / 2); //TODO generator
+                        pos += get_unit_vector<position_type>(m) * ((float)rng() / rng.max() * Size - Size / 2); 
 
                     collision = false;
 
@@ -62,8 +64,9 @@ namespace meakin
 
         diffusion_limited_bath() : seeded_(false) {}
 
+        template<class RandomNumberGenerator>
         void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters) 
+                  std::vector<cluster_type>& clusters, RandomNumberGenerator & rng) 
         {
             if(!seeded_)
             {
@@ -100,8 +103,7 @@ namespace meakin
                     float mod = 0;
                     for(unsigned m = 0; m < e.size(); ++m)
                     {
-                        e[m] = 2 * (float)rand() / RAND_MAX - 1;
-                        //TODO normal distribution
+                        e[m] = norm_dist_(rng);
                         mod += e[m] * e[m];
                     }
                     mod = sqrt(mod);
@@ -132,6 +134,7 @@ namespace meakin
         }
 
     private:
+        std::normal_distribution<float> norm_dist_;
         bool seeded_;
     };
 
@@ -145,12 +148,13 @@ namespace meakin
 
         static_bath() : done_(false) {}
 
+        template<class RandomNumberGenerator>
         void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type> & clusters) 
+                  std::vector<cluster_type> & clusters, RandomNumberGenerator & rng) 
         {
             if(done_)
                 return;
-            uniform_bath<Particle, Cluster, Size, Particles>::step(particles, clusters);
+            uniform_bath<Particle, Cluster, Size, Particles>::step(particles, clusters, rng);
             done_ = true;
         }
 

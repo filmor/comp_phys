@@ -31,7 +31,7 @@ namespace trivial
     template <class P, class C, class B, class Rng>
     void world<P, C, B, Rng>::step()
     {
-        bath_.step(particles_, clusters_);
+        bath_.step(particles_, clusters_, gen_);
 
         // TODO: Probability matrix for the particle!
 
