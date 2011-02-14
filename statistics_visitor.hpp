@@ -16,16 +16,17 @@ namespace trivial
 			{
 				const typename World::cluster_type & c = world.get_clusters()[n];
 
-				typename World::position_type::float_vector_type center;
+				typedef typename World::position_type::float_vector_type flt_vec_t;
+                flt_vec_t center;
 
 				for(unsigned m = 0; m < c.get_size(); ++m)
-					center += c.get_particles()[m].position;
+					center += flt_vec_t(c.get_particles()[m].position);
 
 				center /= c.get_size();
 
-                float rog;
+                float rog = 0.f;
                 for(unsigned m = 0; m < c.get_size(); ++m)
-                    rog += abs2(c.get_particles()[m].position - center);
+                    rog += abs2(flt_vec_t(c.get_particles()[m].position) - center);
                 rog /= c.get_size();
                 rog = std::sqrt(rog);
 
