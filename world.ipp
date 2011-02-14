@@ -1,5 +1,6 @@
 #include "interaction.hpp"
 
+#include <random>
 #include <boost/foreach.hpp>
 
 namespace trivial
@@ -10,8 +11,9 @@ namespace trivial
         template <typename Vector, typename Rng>
         Vector generate_random_vector(Rng& generator)
         {
-            auto index = 
-                std::uniform_int<unsigned>()(generator, Vector::dimension * 2);
+            static std::uniform_int_distribution<unsigned> distribution(0, Vector::dimension * 2 - 1);
+
+            auto index = distribution(generator);
 
             return (index % 2 == 1 ? 1 : -1) * 
                     get_unit_vector<Vector>(index / 2);
