@@ -32,7 +32,7 @@ namespace trivial
                 float coord = 0;
                 for(unsigned n = 0; n < c.get_size(); ++n)
                     for(unsigned m = 0; m < 2 * World::dimension; ++m)
-                        if(c.has_particle_at(c.get_particles()[n].position + (m % 2 ? 1 : -1) * get_unit_vector<typename World::position_type>(m / 2)))
+                        if(c.has_particle_at(c.abs_position(c.get_particles()[n]) + (m % 2 ? 1 : -1) * get_unit_vector<typename World::position_type>(m / 2)))
                             ++coord;
                 out << coord / c.get_size();
             }
@@ -53,7 +53,6 @@ namespace trivial
                 // this relies on the particles being sorted by age ascending in cluster!
                 for(unsigned m = c.get_size() * (100 - Percent) / 100; m < c.get_size(); ++m)
                     center += flt_vec_t(c.get_particles()[m].position);
-
                 center /= c.get_size();
 
                 float rog = 0;
@@ -86,7 +85,7 @@ namespace trivial
                     float d = 0;
                     for(unsigned n = 0; n < c.get_size(); ++n)  // only sum over occupied sites (other contribute 0)
                         for(unsigned m = 0; m < 2 * World::dimension; ++m)  // average over all directions
-                            if(c.has_particle_at(c.get_particles()[n].position + dist * (m % 2 ? 1 : -1) * get_unit_vector<typename World::position_type>(m / 2)))
+                            if(c.has_particle_at(c.abs_position(c.get_particles()[n]) + dist * (m % 2 ? 1 : -1) * get_unit_vector<typename World::position_type>(m / 2)))
                                 ++d;
                     return d / (2 * World::dimension * c.get_size());
                 }

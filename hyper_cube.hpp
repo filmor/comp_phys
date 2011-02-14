@@ -32,7 +32,7 @@ namespace trivial
             : data_(pow(2 * radius + 1, Dimensions)), radius_(radius)
         {}
 
-        std::size_t get_radius() const
+        int get_radius() const
         {
             return radius_;
         }
@@ -79,7 +79,7 @@ namespace trivial
             return data_[get_int_index(index, radius_)];
         }
 
-    private:
+    public:
         static std::size_t get_int_index (index_type const& index,
                                           std::size_t radius)
         {
@@ -87,6 +87,7 @@ namespace trivial
             std::size_t multiplicator = 1;
             for (unsigned i = 0; i < Dimensions; ++i) 
             {
+                assert(std::abs(index[i]) <= radius);
                 result += multiplicator * (index[i] + radius);
                 multiplicator *= 2 * radius + 1;
             }
@@ -109,6 +110,25 @@ namespace trivial
         std::vector<T> data_; // Cube of size 2size_+1 in every dimension
         std::size_t radius_;
     };
+
+    template <typename T, unsigned N>
+    std::ostream& operator<< (std::ostream& os, hyper_cube<T, N> const& v)
+    {
+        const int r = v.get_radius();
+        os << r << '\n';
+        typename hyper_cube<T, N>::index_type p;
+
+        for (p[0] = -r; p[0] <= r; ++p[0])
+        {
+            for (p[1] = -r; p[1] <= r; ++p[1])
+            {
+                os << (v[p] ? 'X' : '.');
+            }
+            os << '\n';
+        }
+
+        return os;
+    }
 }
 
 #endif

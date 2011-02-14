@@ -21,7 +21,7 @@ namespace meakin
         typedef Particle particle_type;
         typedef typename Particle::position_type position_type;
 
-        static_cluster () : data_(64)
+        static_cluster () : data_(0)
         {}
 
         void add_particle (Particle p)
@@ -71,13 +71,18 @@ namespace meakin
                         > data_.get_radius())
                 {
                     print("growing", cube_center_ - ball_center_);
-                    typename position_type::vector_type cube_center_diff;
 
-                    data_.grow_around(ball_center_, 0);
+                    auto diff = ball_center_ - cube_center_;
+
+                    // W00t! This works!!!
+                    // print(data_);
+                    data_.grow_around(diff, 0);
+                    // print(data_);
 
                     BOOST_FOREACH( Particle& p2, particles_ )
                     {
-                        p2.position += cube_center_ - ball_center_;
+                        p2.position -= diff;
+                        data_[p2.position]->position -= diff;
                     }
 
                     cube_center_ = ball_center_;
@@ -86,7 +91,8 @@ namespace meakin
 
             // p.position is now relative to cube_center_
             p.position -= cube_center_;
-            // assert(abs_inf(p.position) <= data_.get_radius());
+            assert(abs_inf(p.position) <= data_.get_radius());
+            // print(p.position, data_.get_radius(), abs_inf(p.position));
             data_[p.position] = p;
             particles_.push_back(p);
             //print(particles_.back().position);
@@ -103,7 +109,7 @@ namespace meakin
 
         bool has_particle_at(position_type const& p) const
         {
-            if (abs2(p - ball_center_) <= radius2_ + 1.0)
+            if (abs2(p - ball_center_) <= radius2_ + 0.1f)
             {
                 const auto diff = p - cube_center_;
 
@@ -111,6 +117,11 @@ namespace meakin
                     return data_[diff].is_initialized();
             }
             return false;
+        }
+
+        position_type abs_position(const Particle & p) const
+        {
+            return p.position + cube_center_;
         }
 
         std::vector<particle_type> const& get_particles () const
