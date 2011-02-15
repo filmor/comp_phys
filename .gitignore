@@ -1,6 +1,7 @@
 build/
 .waf*/
 .lock-wscript
+.lock-wafbuild
 .*.sw[po]
 gmon.out
 gprof.output

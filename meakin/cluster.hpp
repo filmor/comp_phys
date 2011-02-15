@@ -24,7 +24,8 @@ namespace meakin
         static_cluster () : data_(0)
         {}
 
-        void add_particle (Particle p)
+        template<class RandomNumberGenerator> 
+        void add_particle (Particle p, RandomNumberGenerator & rng)
         {
             if (particles_.empty())
             {
@@ -60,7 +61,7 @@ namespace meakin
 
                     ball_center_ += ball_center_diff;
                     ball_carry_  -= flt_vec_t(ball_center_diff);
-                    diff -= ball_center_diff;
+                    diff += ball_center_diff;
 
                     radius2_ = abs2(diff);
                     radius_ = std::sqrt(radius2_);
@@ -98,11 +99,12 @@ namespace meakin
             //print(particles_.back().position);
         }
 
-        void merge (static_cluster const& other)
+        template<class RandomNumberGenerator>
+        void merge (static_cluster const& other, RandomNumberGenerator & rng)
         {
             BOOST_FOREACH(particle_type const& p, other.particles_)
             {
-                add_particle(p);
+                add_particle(p, rng);
             }
             // TODO: Remove particle from other
         }
