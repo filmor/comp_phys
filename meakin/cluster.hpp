@@ -58,6 +58,8 @@ namespace meakin
                                     (ball_carry_[i] > 0.0f ? +0.5f : -0.5f)
                                     );
 
+                    // print(diff, new_radius, ball_carry_);
+
                     ball_center_ += ball_center_diff;
                     ball_carry_  -= flt_vec_t(ball_center_diff);
                     diff -= ball_center_diff;
@@ -70,8 +72,6 @@ namespace meakin
                 if (abs_inf(p.position - cube_center_)
                         > data_.get_radius())
                 {
-                    print("growing", cube_center_ - ball_center_);
-
                     auto diff = ball_center_ - cube_center_;
 
                     // W00t! This works!!!

@@ -116,7 +116,13 @@ namespace trivial
             do
             {
                 draw_again = this->start_frame();
-                // No particle drawing for now
+                for (auto i = world.get_particles().begin();
+                     i != world.get_particles().end();
+                     ++i)
+                {
+                    this->draw_box(i->position);
+                }
+
                 for (auto i = world.get_clusters().begin();
                      i != world.get_clusters().end();
                      ++i)

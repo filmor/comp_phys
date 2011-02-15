@@ -21,7 +21,7 @@ namespace meakin
 
         template<class RandomNumberGenerator>
         void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters, RandomNumberGenerator & rng) 
+                  std::vector<cluster_type>& clusters, RandomNumberGenerator& rng) 
         {
             for (unsigned n = particles.size(); n < FreeParticles; ++n)
             {
@@ -29,7 +29,8 @@ namespace meakin
                 for (bool collision = true; collision;)
                 {
                     for (unsigned m = 0; m < position_type::dimension; ++m)
-                        pos += get_unit_vector<position_type>(m) * ((float)rng() / rng.max() * Size - Size / 2); 
+                        pos += get_unit_vector<position_type>(m) 
+                                * ((float)rng() / rng.max() * Size - Size / 2);
 
                     collision = false;
 
@@ -66,7 +67,7 @@ namespace meakin
 
         template<class RandomNumberGenerator>
         void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters, RandomNumberGenerator & rng) 
+                  std::vector<cluster_type>& clusters, RandomNumberGenerator& rng) 
         {
             if(!seeded_)
             {

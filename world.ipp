@@ -10,8 +10,10 @@ namespace trivial
         template <typename Vector, typename Rng>
         Vector generate_random_vector(Rng& generator)
         {
-            auto index = 
-                std::uniform_int<unsigned>()(generator, Vector::dimension * 2);
+            static std::uniform_int_distribution<unsigned> dist
+                (0, Vector::dimension * 2);
+            
+            const auto index = dist(generator);
 
             return (index % 2 == 1 ? 1 : -1) * 
                     get_unit_vector<Vector>(index / 2);
