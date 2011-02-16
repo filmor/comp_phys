@@ -73,9 +73,9 @@ namespace meakin
             {
                 position_type p;
                 clusters.push_back(cluster_type());
-                clusters.back().add_particle(particle_type(p));
+                clusters.back().add_particle(particle_type(p), rng);
                 p += get_unit_vector<position_type>(0);
-                clusters.back().add_particle(particle_type(p));
+                clusters.back().add_particle(particle_type(p), rng);
                 seeded_ = true;
             }
 

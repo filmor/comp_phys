@@ -29,19 +29,25 @@ int main()
     world_type w;
 
     gl_visitor<world_type> glv;
-    rog_visitor<world_type> rogv;
+
+    statistics_visitor<world_type,
+            stat::particles<world_type>,
+            stat::coord_number<world_type>,
+            stat::radius_of_gyration<world_type, 95>>//,
+//            stat::dens_dens_correlation<world_type>>
+        sv(std::cout);
 
     unsigned f = 0;
-    for(unsigned int n = 0;; n++)
+    for (unsigned int n = 0;; n++)
     {
+        w.step();
         if(n % 100000 == 0)
         {
             w.accept(glv);
-            w.accept(rogv);
+            w.accept(sv);
             ++f;
             if (f > 1000)
                 break;
         }
-        w.step();
     }
 }

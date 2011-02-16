@@ -124,7 +124,7 @@ namespace impl
 
     void gl_visitor_3d::click_event(int x, int y)
     {
-        angle_ += (x - width / 2) * 0.1f;
+        angle_ += (x - (int)width / 2) * 0.1f;
         view_changed = true;
     }
 

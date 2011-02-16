@@ -50,8 +50,8 @@ namespace impl
 
     void gl_visitor_2d::click_event (int x, int y)
     {
-        x_ += (x - (width / 2)) / point_size_;
-        y_ -= (y - (height / 2)) / point_size_;
+        x_ += (x - ((int)width / 2)) / point_size_;
+        y_ -= (y - ((int)height / 2)) / point_size_;
         view_changed = true;
     }
 
