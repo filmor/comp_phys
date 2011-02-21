@@ -4,6 +4,7 @@
 #include <vector>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
+#include <boost/iterator/iterator_adaptor.hpp>
 
 #include "print.hpp"
 #include "interaction.hpp"
@@ -20,6 +21,32 @@ namespace meakin
     public:
         typedef Particle particle_type;
         typedef typename Particle::position_type position_type;
+
+        class const_iterator
+            : public boost::iterator_adaptor<
+                        const_iterator,
+                        typename std::vector<particle_type>::const_iterator,
+                        boost::use_default,
+                        boost::forward_traversal_tag
+                    >
+        {
+        public:
+            typedef typename std::vector<particle_type>::const_iterator base_type;
+
+            const_iterator(position_type const& origin, base_type const& p)
+                : const_iterator::iterator_adaptor_(p), origin_(origin)
+            {}
+
+        private:
+            friend class boost::iterator_core_access;
+
+            position_type origin_;
+            
+            particle_type const& dereference() const
+            {
+                return *this->base_reference() - this->origin_;
+            }
+        };
 
         static_cluster () : data_(0)
         {}
@@ -77,7 +104,7 @@ namespace meakin
 
                     // W00t! This works!!!
                     // print(data_);
-                    data_.grow_around(diff, 0);
+                    data_.grow_around(diff, abs_inf(p.position - cube_center_));
                     // print(data_);
 
                     BOOST_FOREACH( Particle& p2, particles_ )
