@@ -54,6 +54,8 @@ namespace trivial
             void draw_box(vector<2> const&);
             void draw_sphere(vector<2> const&, float);
 
+            bool start_frame();
+
             virtual void click_event(int, int);
             virtual void wheel_event(int);
 
@@ -110,9 +112,7 @@ namespace trivial
                 this->view_changed = false;
             }
 
-
             bool draw_again;
-
             do
             {
                 draw_again = this->start_frame();

@@ -26,9 +26,14 @@ namespace impl
         glPointSize(point_size_);
     }
 
-    void gl_visitor_2d::draw_sphere (vector<2> const& v, float radius)
+    bool gl_visitor_2d::start_frame()
     {
         glClear(GL_COLOR_BUFFER_BIT);
+        return false;
+    }
+
+    void gl_visitor_2d::draw_sphere (vector<2> const& v, float radius)
+    {
         glColor3f(1.0f, 1.0f, 1.0f);
         glBegin(GL_LINE_STRIP);
 
