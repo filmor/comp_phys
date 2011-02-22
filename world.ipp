@@ -27,6 +27,7 @@ namespace trivial
             {
                 vec[index] = vec.back();
             }
+            assert(index < vec.size());
             vec.pop_back();
         }
     }
@@ -131,8 +132,7 @@ namespace trivial
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )
             {
                 clusters_[i].merge(clusters_[index], gen_);
-                clusters_[index] = clusters_.back();
-                clusters_.pop_back();
+                remove_element(clusters_, index);
             }
         }
     }

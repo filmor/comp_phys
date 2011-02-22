@@ -129,8 +129,9 @@ namespace meakin
         template<class RandomNumberGenerator>
         void merge (static_cluster const& other, RandomNumberGenerator & rng)
         {
-            BOOST_FOREACH(particle_type const& p, other.particles_)
+            BOOST_FOREACH(particle_type p, other.particles_)
             {
+                p.position += other.cube_center_;
                 add_particle(p, rng);
             }
             // TODO: Remove particle from other
@@ -232,6 +233,7 @@ namespace meakin
     public:
         void move (typename Particle::position_type::vector_type const& v)
         {
+            print("moving");
             static_cluster<Particle>::cube_center_ += v;
             static_cluster<Particle>::ball_center_ += v;
         }
