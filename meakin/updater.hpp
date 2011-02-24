@@ -12,7 +12,7 @@ namespace meakin
 {
 
     template <class Particle, class Cluster, int Size, unsigned FreeParticles>
-    class uniform_bath
+    class uniform_updater
     {
     public:
         typedef typename Particle::position_type position_type;
@@ -20,7 +20,7 @@ namespace meakin
         typedef Particle particle_type;
 
         template<class RandomNumberGenerator>
-        void step(std::vector<particle_type>& particles,
+        void operator()(std::vector<particle_type>& particles,
                   std::vector<cluster_type>& clusters, RandomNumberGenerator& rng) 
         {
             for (unsigned n = particles.size(); n < FreeParticles; ++n)
@@ -56,18 +56,19 @@ namespace meakin
     };
 
     template <class Particle, class Cluster, int Size, unsigned FreeParticles>
-    class diffusion_limited_bath
+    class diffusion_limited_updater
     {
     public:
         typedef typename Particle::position_type position_type;
         typedef Cluster cluster_type;
         typedef Particle particle_type;
 
-        diffusion_limited_bath() : seeded_(false) {}
+        diffusion_limited_updater() : seeded_(false) {}
 
         template<class RandomNumberGenerator>
-        void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters, RandomNumberGenerator& rng) 
+        void operator()(std::vector<particle_type>& particles,
+                        std::vector<cluster_type>& clusters,
+                        RandomNumberGenerator& rng) 
         {
             if(!seeded_)
             {
@@ -140,22 +141,24 @@ namespace meakin
     };
 
     template<class Particle, class Cluster, int Size, unsigned Particles>
-    class static_bath : public uniform_bath<Particle, Cluster, Size, Particles>
+    class static_updater : public uniform_updater<Particle, Cluster, Size, Particles>
     {
     public:
         typedef typename Particle::position_type position_type;
         typedef Cluster cluster_type;
         typedef Particle particle_type;
 
-        static_bath() : done_(false) {}
+        static_updater() : done_(false) {}
 
         template<class RandomNumberGenerator>
-        void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type> & clusters, RandomNumberGenerator & rng) 
+        void operator()(std::vector<particle_type>& particles,
+                        std::vector<cluster_type> & clusters,
+                        RandomNumberGenerator & rng) 
         {
             if(done_)
                 return;
-            uniform_bath<Particle, Cluster, Size, Particles>::step(particles, clusters, rng);
+            uniform_updater<Particle, Cluster, Size, Particles>::operator()
+                (particles, clusters, rng);
             done_ = true;
         }
 

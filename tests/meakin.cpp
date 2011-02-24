@@ -22,10 +22,10 @@ int main()
     typedef meakin::static_cluster<particle_type>
         cluster_type;
     
-    typedef meakin::diffusion_limited_bath<particle_type, cluster_type, size, 1>
-        bath_type;
+    typedef meakin::diffusion_limited_updater<particle_type, cluster_type, size, 1>
+        updater_type;
     
-    typedef world<particle_type, cluster_type, bath_type>
+    typedef world<particle_type, cluster_type, updater_type>
         world_type;
 
     world_type w;

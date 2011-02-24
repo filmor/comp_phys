@@ -21,10 +21,10 @@ int main()
     typedef meakin::moving_cluster<particle_type>
         cluster_type;
 
-    typedef meakin::static_bath<particle_type, cluster_type, size, particles>
-        bath_type;
+    typedef meakin::static_updater<particle_type, cluster_type, size, particles>
+        updater_type;
 
-    typedef world<particle_type, cluster_type, bath_type, std::minstd_rand>
+    typedef world<particle_type, cluster_type, updater_type, std::minstd_rand>
         world_type;
 
     world_type w;
