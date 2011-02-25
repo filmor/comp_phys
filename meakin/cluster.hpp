@@ -4,6 +4,7 @@
 #include <vector>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
+#include <boost/iterator/iterator_adaptor.hpp>
 
 #include "../print.hpp"
 #include "../interaction.hpp"
@@ -20,6 +21,32 @@ namespace meakin
     public:
         typedef Particle particle_type;
         typedef typename Particle::position_type position_type;
+
+        class const_iterator
+            : public boost::iterator_adaptor<
+                        const_iterator,
+                        typename std::vector<particle_type>::const_iterator,
+                        boost::use_default,
+                        boost::forward_traversal_tag
+                    >
+        {
+        public:
+            typedef typename std::vector<particle_type>::const_iterator base_type;
+
+            const_iterator(position_type const& origin, base_type const& p)
+                : const_iterator::iterator_adaptor_(p), origin_(origin)
+            {}
+
+        private:
+            friend class boost::iterator_core_access;
+
+            position_type origin_;
+            
+            particle_type const& dereference() const
+            {
+                return *this->base_reference() - this->origin_;
+            }
+        };
 
         static_cluster () : data_(0)
         {}
@@ -58,6 +85,8 @@ namespace meakin
                                     (ball_carry_[i] > 0.0f ? +0.5f : -0.5f)
                                     );
 
+                    // print(diff, new_radius, ball_carry_);
+
                     ball_center_ += ball_center_diff;
                     ball_carry_  -= flt_vec_t(ball_center_diff);
                     diff -= ball_center_diff;
@@ -72,8 +101,6 @@ namespace meakin
                 if (abs_inf(position_type(p.position - cube_center_))
                         > data_.get_radius())
                 {
-                    //print("growing", cube_center_ - ball_center_);
-
                     position_type diff = ball_center_ - cube_center_;
 
                     // W00t! This works!!!

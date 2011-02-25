@@ -144,9 +144,7 @@ namespace trivial
                 this->view_changed = false;
             }
 
-
             bool draw_again;
-
             do
             {
                 draw_again = this->start_frame();
@@ -157,7 +155,6 @@ namespace trivial
                 {
                     this->draw_particle(*i);
                 }  
-
                 for (auto i = world.get_clusters().begin();
                      i != world.get_clusters().end();
                      ++i)

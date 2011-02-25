@@ -9,7 +9,7 @@
 
 namespace trivial
 {
-    template <class Particle, class Cluster, class Bath,
+    template <class Particle, class Cluster, class Updater,
               class RandomNumberGenerator = std::mt19937>
     class world
     {
@@ -52,7 +52,7 @@ namespace trivial
     private:
         std::vector<particle_type> particles_;
         std::vector<cluster_type> clusters_;
-        Bath bath_;
+        Updater updater_;
         RandomNumberGenerator gen_;
     };
 }

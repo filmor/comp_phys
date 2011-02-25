@@ -18,6 +18,7 @@ namespace impl
         glFogf(GL_FOG_START, 1.0f);
         glFogf(GL_FOG_END, 2 * distance_);
         glEnable(GL_FOG);
+        glPolygonMode(GL_BACK, GL_LINE);
 
         float pos[] = {1.0f, 1.0f, 1.0f, 1.0f};
         glLightfv(GL_LIGHT0, GL_POSITION, pos);
@@ -138,6 +139,7 @@ namespace impl
     void gl_visitor_3d::draw_sphere(vector<3> const& v, float radius)
     {
         glColor3f(1.0f, 1.0f, 1.0f);
+        glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         glPolygonMode(GL_FRONT, GL_LINE);
         glPushMatrix();
@@ -146,6 +148,7 @@ namespace impl
         glPopMatrix();
         glPolygonMode(GL_FRONT, GL_FILL);
         glEnable(GL_LIGHTING);
+        glEnable(GL_CULL_FACE);
     }
 
     void gl_visitor_3d::draw_box(vector<3> const& v, float r, float g, float b)

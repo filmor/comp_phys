@@ -1,6 +1,3 @@
-#include <cstdlib>
-#include <iostream>
-
 #include "position.hpp"
 #include "meakin.hpp"
 #include "world.hpp"
@@ -9,17 +6,24 @@
 
 using namespace trivial;
 
-int main(int args, char ** argv)
+int main()
 {
-    srand(time(0));
-
     const unsigned dimensions = 3;
-    typedef position<dimensions> position_type;
-    typedef meakin::sticky_particle<position_type> particle_type;
-    typedef meakin::static_cluster<particle_type> cluster_type;
-    typedef meakin::diffusion_limited_bath<particle_type, cluster_type, 1>
-        bath_type;
-    typedef world<particle_type, cluster_type, bath_type> world_type;
+
+    typedef position<dimensions>
+        position_type;
+
+    typedef meakin::sticky_particle<position_type>
+        particle_type;
+
+    typedef meakin::static_cluster<particle_type>
+        cluster_type;
+
+    typedef meakin::diffusion_limited_updater<particle_type, cluster_type, 1>
+        updater_type;
+    
+    typedef world<particle_type, cluster_type, updater_type>
+        world_type;
 
     world_type w;
 

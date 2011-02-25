@@ -11,9 +11,10 @@ namespace trivial
         template <typename Vector, typename Rng>
         Vector generate_random_vector(Rng& generator)
         {
-            static std::uniform_int_distribution<unsigned> distribution(0, Vector::dimension * 2 - 1);
-
-            auto index = distribution(generator);
+            static std::uniform_int_distribution<unsigned> dist
+                (0, Vector::dimension * 2);
+            
+            const auto index = dist(generator);
 
             return (index % 2 == 1 ? 1 : -1) * 
                     get_unit_vector<Vector>(index / 2);
@@ -26,6 +27,7 @@ namespace trivial
             {
                 vec[index] = vec.back();
             }
+            assert(index < vec.size());
             vec.pop_back();
         }
     }
@@ -33,7 +35,7 @@ namespace trivial
     template <class P, class C, class B, class Rng>
     void world<P, C, B, Rng>::step()
     {
-        bath_.step(particles_, clusters_, gen_);
+        updater_(particles_, clusters_, gen_);
 
         // TODO: Probability matrix for the particle!
 
@@ -130,8 +132,7 @@ namespace trivial
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )
             {
                 clusters_[i].merge(clusters_[index]);
-                clusters_[index] = clusters_.back();
-                clusters_.pop_back();
+                remove_element(clusters_, index);
             }
         }
     }

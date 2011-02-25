@@ -1,5 +1,5 @@
-#ifndef TRIVIAL_EDEN_BATH_HPP
-#define TRIVIAL_EDEN_BATH_HPP
+#ifndef TRIVIAL_EDEN_UPDATER_HPP
+#define TRIVIAL_EDEN_UPDATER_HPP
 
 #include <vector>
 #include <random>
@@ -12,7 +12,7 @@ namespace eden
 {
 
     template <class Particle, class Cluster>
-    class nearest_neighbours_bath
+    class nearest_neighbours_updater
     {
     public:
         typedef typename Particle::position_type position_type;
@@ -20,8 +20,8 @@ namespace eden
         typedef Particle particle_type;
 
         template<class RandomNumberGenerator>
-        void step(std::vector<particle_type>& particles,
-                  std::vector<cluster_type>& clusters, RandomNumberGenerator & rng) 
+        void operator()(std::vector<particle_type>& particles,
+                  std::vector<cluster_type>& clusters, RandomNumberGenerator& rng) 
         {
             if(particles.size() > 0)
                 return;

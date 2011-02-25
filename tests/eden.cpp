@@ -12,12 +12,20 @@ using namespace trivial;
 int main(int args, char ** argv)
 {
     const unsigned dimensions = 2;
-    typedef position<dimensions> position_type;
-    typedef eden::static_particle<position_type> particle_type;
-    typedef eden::static_cluster<particle_type> cluster_type;
-    typedef eden::nearest_neighbours_bath<particle_type, cluster_type>
-        bath_type;
-    typedef world<particle_type, cluster_type, bath_type>
+
+    typedef position<dimensions>
+        position_type;
+
+    typedef eden::static_particle<position_type>
+        particle_type;
+
+    typedef eden::static_cluster<particle_type>
+        cluster_type;
+
+    typedef eden::nearest_neighbours_updater<particle_type, cluster_type>
+        updater_type;
+
+    typedef world<particle_type, cluster_type, updater_type>
         world_type;
 
     world_type w;
@@ -28,10 +36,8 @@ int main(int args, char ** argv)
     for(unsigned int n = 0;; n++)
     {
         w.step();
-       // if(n % 100 == 0)
-        {
-        //    w.accept(sv);
-            w.accept(glv);
-        }
+        w.accept(glv);
+        if(n % 100 == 0)
+            w.accept(sv);
     }
 }
