@@ -14,12 +14,11 @@ int main(int args, char ** argv)
 {
     srand(time(0));
 
-    const unsigned size = 0;
     const unsigned dimensions = 2;
     typedef position<dimensions> position_type;
     typedef meakin::sticky_particle<position_type> particle_type;
     typedef meakin::static_cluster<particle_type> cluster_type;
-    typedef meakin::diffusion_limited_bath<particle_type, cluster_type, size, 1>
+    typedef meakin::diffusion_limited_bath<particle_type, cluster_type, 1>
         bath_type;
     typedef world<particle_type, cluster_type, bath_type>
         world_type;

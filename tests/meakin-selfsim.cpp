@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <iostream>
+#include <random>
 
 #include "position.hpp"
 #include "meakin.hpp"
@@ -13,30 +13,28 @@ int main(int args, char ** argv)
 {
     srand(time(0));
 
-    const unsigned dimensions = 3;
+    const unsigned dimensions = 2;
     typedef position<dimensions> position_type;
     typedef meakin::sticky_particle<position_type> particle_type;
-    typedef meakin::static_cluster<particle_type> cluster_type;
-    typedef meakin::diffusion_limited_bath<particle_type, cluster_type, 1>
+    typedef meakin::moving_cluster<particle_type> cluster_type;
+    typedef meakin::cluster_bath<particle_type, cluster_type, world<particle_type, meakin::static_cluster<particle_type>, 
+            meakin::diffusion_limited_bath<particle_type, meakin::static_cluster<particle_type>, 1>>, 100>
         bath_type;
-    typedef world<particle_type, cluster_type, bath_type> world_type;
+    typedef world<particle_type, cluster_type, bath_type>
+        world_type;
 
     world_type w;
 
     gl_visitor<world_type> glv;
     population_visitor<world_type> pv;
-  
-    // typical red/cyan glasses
-    glv.set_anaglyph(ANA_RED, ANA_GREEN | ANA_BLUE);
 
     for(unsigned int n = 0;; n++)
     {
-        if(n % 1000000 == 0)
-            w.accept(pv);
-        // better response, cpu dependent pseudo-solution
-        // TODO: proper timing for visitors
-        if(n % 100000 == 0)
+        if(n % 1000 == 0)
+        {
             w.accept(glv);
+            w.accept(pv);
+        }
         w.step();
     }
 }

@@ -124,7 +124,7 @@ namespace trivial
                 }
             }                    
 
-            if (clusters_to_join.empty())
+            if (i > 0 && clusters_to_join.empty()) // first cluster never needs to move
                 clusters_[i].move(generate_random_vector<vector_type>(gen_));
 
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )

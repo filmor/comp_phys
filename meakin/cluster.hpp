@@ -35,7 +35,7 @@ namespace meakin
             }
             else
             {
-                auto diff = p.position - ball_center_;
+                position_type diff = p.position - ball_center_;
 
                 if (abs2(diff) > radius2_)
                 {
@@ -60,23 +60,25 @@ namespace meakin
 
                     ball_center_ += ball_center_diff;
                     ball_carry_  -= flt_vec_t(ball_center_diff);
-                    diff += ball_center_diff;
+                    diff -= ball_center_diff;
 
-                    radius2_ = abs2(diff);
-                    radius_ = std::sqrt(radius2_);
+                    //radius2_ = abs2(diff);
+                    //radius_ = std::sqrt(radius2_);
+                    radius_ = abs(diff) + 1;        //rather a workaround
+                    radius2_ = radius_ * radius_;
                 }
 
 
-                if (abs_inf(p.position - cube_center_)
+                if (abs_inf(position_type(p.position - cube_center_))
                         > data_.get_radius())
                 {
                     //print("growing", cube_center_ - ball_center_);
 
-                    auto diff = ball_center_ - cube_center_;
+                    position_type diff = ball_center_ - cube_center_;
 
                     // W00t! This works!!!
                     // print(data_);
-                    data_.grow_around(diff, abs_inf(p.position - cube_center_));
+                    data_.grow_around(diff, abs_inf(position_type(p.position - cube_center_)));
                     // print(data_);
 
                     BOOST_FOREACH( Particle& p2, particles_ )
@@ -110,9 +112,9 @@ namespace meakin
 
         bool has_particle_at(position_type const& p) const
         {
-            if (abs2(p - ball_center_) <= radius2_ + 0.1f)
+            if (abs2(p - ball_center_) <= radius2_)
             {
-                const auto diff = p - cube_center_;
+                const position_type diff = p - cube_center_;
 
                 if (abs_inf(diff) <= data_.get_radius())
                     return data_[diff].is_initialized();
@@ -121,9 +123,7 @@ namespace meakin
         }
 
         position_type abs_position(const Particle & p) const
-        {
-            return p.position + cube_center_;
-        }
+        { return p.position + cube_center_; }
 
         std::vector<particle_type> const& get_particles () const
         { return particles_; }
@@ -172,7 +172,8 @@ namespace meakin
             {
                 for (int k = 0; k < position_type::dimension * 2; ++k)
                 {
-                    position_type p = smaller_one->get_particles()[m].position
+                    position_type p = smaller_one->cube_center_
+                                    + smaller_one->get_particles()[m].position
                                     + (2 * (k % 2) - 1)
                                     * get_unit_vector<position_type>(k / 2);
 

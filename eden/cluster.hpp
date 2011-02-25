@@ -21,7 +21,7 @@ namespace eden
         typedef typename Particle::position_type position_type;
         typedef meakin::static_cluster<Particle> base;
 
-        static_cluster(float eta = 1, float nm = 10240) : eta_(eta), nm_(nm) {}
+        static_cluster(float eta = 1, float nm = 102400) : eta_(eta), nm_(nm) {}
 
         void add_particle (Particle p)
         {
@@ -92,7 +92,7 @@ namespace eden
         float sun_score(position_type & p)
         {
 static unsigned counter = 0;
-print(counter);
+//print(counter);
             if(p[1] < 0)
                 return 0;
             else if(++counter / 10000 /*% 2*/)
