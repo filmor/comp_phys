@@ -6,6 +6,9 @@
 #include "visitor.hpp"
 #include "vector.hpp"
 
+#include "position.hpp"
+#include "eden/particle.hpp"
+
 namespace trivial
 {
     enum { ANA_NONE = 0,
@@ -51,13 +54,31 @@ namespace trivial
             gl_visitor_2d();
 
             void update_view();
-            void draw_box(vector<2> const&);
-            void draw_sphere(vector<2> const&, float);
+
+            template<class Particle>
+            void draw_particle(const Particle & p, const vector<2> & offset = vector<2>())
+            { draw_box(p.position + offset); }
+            
+            template<class Cluster>
+            void draw_cluster(const Cluster & c)
+            {
+                draw_sphere(c.get_center(), c.get_radius());
+                for(auto i = c.get_particles().begin(); i != c.get_particles().end(); ++i)
+                    draw_particle(*i, c.get_cube_center());
+            }
+
+            void draw_particle(const eden::static_particle<position<2>> & p, const vector<2> & offset = vector<2>());
+
+            bool start_frame();
 
             virtual void click_event(int, int);
             virtual void wheel_event(int);
 
         private:
+            void draw_box(vector<2> const&, float r = 1, float g = 0, float b = 0);
+            void draw_sphere(vector<2> const&, float);
+            void set_gradient_color(float, float&, float&, float&);
+
             float point_size_;
             int x_, y_;
         };
@@ -74,8 +95,18 @@ namespace trivial
             ~gl_visitor_3d();
 
             void update_view();
-            void draw_box(vector<3> const&);
-            void draw_sphere(vector<3> const&, float);
+            
+            template<class Particle>
+            void draw_particle(const Particle & p, const vector<3> & offset = vector<3>())
+            { draw_box(p.position + offset); }
+            
+            template<class Cluster>
+            void draw_cluster(const Cluster & c)
+            {
+                draw_sphere(c.get_center(), c.get_radius());
+                for(auto i = c.get_particles().begin(); i != c.get_particles().end(); ++i)
+                    draw_particle(*i, c.get_cube_center());
+            }
 
             bool start_frame();
             void end_frame();
@@ -84,6 +115,9 @@ namespace trivial
             virtual void wheel_event(int);
 
         private:
+            void draw_box(vector<3> const&, float r = 1, float g = 1, float b = 1);
+            void draw_sphere(vector<3> const&, float);
+
             char anaglyph_;
             float distance_, angle_;
             int cube_list_;
@@ -116,18 +150,20 @@ namespace trivial
             do
             {
                 draw_again = this->start_frame();
-                // No particle drawing for now
+
+                for (auto i = world.get_particles().begin();
+                    i != world.get_particles().end();
+                    ++i)
+                {
+                    this->draw_particle(*i);
+                }  
+
                 for (auto i = world.get_clusters().begin();
                      i != world.get_clusters().end();
                      ++i)
                 {
-                    this->draw_sphere(i->get_center(), i->get_radius());
-                    for (auto j = i->get_particles().begin();
-                         j != i->get_particles().end();
-                         ++j)
-                    {
-                        this->draw_box(j->position + i->get_cube_center());
-                    }
+                    this->draw_cluster(*i);
+
                 }
             }
             while (draw_again);
@@ -135,6 +171,7 @@ namespace trivial
             this->end_frame();
         }
     };
+
 }
 
 #endif

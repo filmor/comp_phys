@@ -90,6 +90,36 @@ namespace trivial
                     return d / (2 * World::dimension * c.get_size());
                 }
         };
+
+        template<class World, unsigned Bins>
+        struct score_dist
+        {
+            typedef typename World::position_type::float_vector_type flt_vec_t;
+
+            static void write_header(std::ostream & out)
+            { out << "max. score\tavg. score\tscore distribution"; }
+
+            static void write_value(std::ostream & out, const typename World::cluster_type & c)
+            {
+                float score_max = 0;
+                float score_avg = 0;
+                for(unsigned n = 0; n < c.get_size(); ++n)
+                {
+                    score_max = std::max(score_max, c.get_particles()[n].score);
+                    score_avg += c.get_particles()[n].score;
+                }
+                score_avg /= c.get_size();
+
+                std::vector<unsigned> bins(Bins);
+                for(unsigned n = 0; n < c.get_size(); ++n)
+                    ++bins[c.get_particles()[n].score / score_max * (Bins - 1)];
+    
+                out << score_max << "\t" << score_avg << "\t{ ";
+                for(unsigned n = 0; n < bins.size() - 1; ++n)
+                    out << bins[n] << ", ";
+                out << bins.back() << " }";
+            }
+        };
     }
 
     template<class ... Any> //might become unneccessary with the advance of c++0x
