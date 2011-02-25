@@ -3,9 +3,8 @@
 
 #include <vector>
 
-#include "interaction.hpp"
+#include "../interaction.hpp"
 #include "cluster.hpp"
-#include "visitor.hpp"
 
 namespace trivial
 {

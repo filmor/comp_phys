@@ -5,9 +5,9 @@
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 
-#include "print.hpp"
-#include "interaction.hpp"
-#include "hyper_cube.hpp"
+#include "../print.hpp"
+#include "../interaction.hpp"
+#include "../hyper_cube.hpp"
 
 namespace trivial
 {
@@ -24,8 +24,7 @@ namespace meakin
         static_cluster () : data_(0)
         {}
 
-        template<class RandomNumberGenerator> 
-        void add_particle (Particle p, RandomNumberGenerator & rng)
+        void add_particle (Particle p)
         {
             if (particles_.empty())
             {
@@ -71,13 +70,13 @@ namespace meakin
                 if (abs_inf(p.position - cube_center_)
                         > data_.get_radius())
                 {
-                    print("growing", cube_center_ - ball_center_);
+                    //print("growing", cube_center_ - ball_center_);
 
                     auto diff = ball_center_ - cube_center_;
 
                     // W00t! This works!!!
                     // print(data_);
-                    data_.grow_around(diff, 0);
+                    data_.grow_around(diff, abs_inf(p.position - cube_center_));
                     // print(data_);
 
                     BOOST_FOREACH( Particle& p2, particles_ )
@@ -99,12 +98,12 @@ namespace meakin
             //print(particles_.back().position);
         }
 
-        template<class RandomNumberGenerator>
-        void merge (static_cluster const& other, RandomNumberGenerator & rng)
+        void merge (static_cluster & other)
         {
-            BOOST_FOREACH(particle_type const& p, other.particles_)
+            BOOST_FOREACH(particle_type & p, other.particles_)
             {
-                add_particle(p, rng);
+                p.position += other.cube_center_;
+                add_particle(p);
             }
             // TODO: Remove particle from other
         }
@@ -203,6 +202,10 @@ namespace meakin
     class moving_cluster : public static_cluster<Particle>
     {
     public:
+        moving_cluster() {}
+
+        explicit moving_cluster(const static_cluster<Particle> & c) : static_cluster<Particle>(c) {}
+
         void move (typename Particle::position_type::vector_type const& v)
         {
             static_cluster<Particle>::cube_center_ += v;

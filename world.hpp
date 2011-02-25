@@ -1,6 +1,7 @@
 #ifndef TRIVIAL_WOLRD_HPP
 #define TRIVIAL_WORLD_HPP
 
+#include <cstdlib>
 #include <vector>
 #include <random>
 
@@ -19,7 +20,7 @@ namespace trivial
         typedef Cluster                             cluster_type;
         static const unsigned dimension = position_type::dimension;
 
-        world(RandomNumberGenerator rng = RandomNumberGenerator())
+        world(RandomNumberGenerator rng = RandomNumberGenerator(time(0)))
             : gen_(rng)
         {}
 
