@@ -76,6 +76,39 @@ namespace trivial
             }
         };
 
+        template <class World, unsigned Bins>
+        struct density
+        {
+            typedef typename World::position_type::float_vector_type flt_vec_t;
+
+            static void write_header(std::ostream & out)
+            { out << "density"; }
+
+            static void write_value(std::ostream & out,
+                                    const typename World::cluster_type & c)
+            {
+                const float step = c.get_radius() / Bins;
+                out << "{ ";
+                for(unsigned d = 0; d < Bins - 1; ++d)
+                    out << get_dens(c, step * d, step * (d + 1)) << ", ";
+                out << get_dens(c, step * (Bins - 1), step * Bins) << " }";
+            }
+
+            private:
+                static float get_dens(const typename World::cluster_type & c,
+                                     float dmin, float dmax)
+                {
+                    float d = 0;
+                    for (unsigned n = 0; n < c.get_size(); ++n)
+                    {
+                        const float dist = abs(c.get_particles()[n].position - c.get_center());
+                        if(dist >= dmin && dist < dmax)
+                            ++d;
+                    }
+                    return d / (M_PI * (dmax * dmax - dmin * dmin));
+                }
+        };
+
         template <class World>
         struct dens_dens_correlation
         {
@@ -158,7 +191,7 @@ namespace trivial
         {
             if(!base::header_)
             {
-                base::out_ << "# Step\tCluster\t";
+                base::out_ << std::endl << std::endl << "# Step\tCluster\t";
                 write_header();
                 base::header_ = true;
             }

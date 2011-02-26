@@ -1,14 +1,17 @@
 #include "position.hpp"
 #include "meakin.hpp"
 #include "world.hpp"
-#include "gl_visitor.hpp"
 #include "statistics_visitor.hpp"
 
 using namespace trivial;
 
-int main()
+int main(int argc, char ** args)
 {
-    const unsigned dimensions = 7;
+    unsigned max_particles = argc > 1 ? atoi(args[1]) : 10000;
+    if(max_particles <= 0)
+        max_particles = 10000;
+
+    const unsigned dimensions = 2;
 
     typedef position<dimensions>
         position_type;
@@ -30,21 +33,28 @@ int main()
     statistics_visitor<world_type,
             stat::particles<world_type>,
             stat::coord_number<world_type>,
-            stat::radius_of_gyration<world_type, 95>>//,
-//            stat::dens_dens_correlation<world_type>>
-        sv(std::cout);
+            stat::radius_of_gyration<world_type, 95>,
+            stat::radius_of_gyration<world_type, 90>,
+            stat::radius_of_gyration<world_type, 75>,
+            stat::radius_of_gyration<world_type, 50>>
+        rogv(std::cout);
 
-    unsigned f = 0;
-    for (unsigned int n = 0;; n++)
+    statistics_visitor<world_type,
+            stat::particles<world_type>,
+            stat::density<world_type, 100>,
+            stat::dens_dens_correlation<world_type>>
+        totalv(std::cout);
+
+    unsigned last_number = 0;
+    do 
     {
         w.step();
-        if(n % 100000 == 0)
+        if(w.get_clusters().back().get_size() >= last_number + 100)
         {
-//            w.accept(glv);
-            w.accept(sv);
-            ++f;
-            if (f > 1000)
-                break;
+            w.accept(rogv);
+            last_number = w.get_clusters().back().get_size();
         }
     }
+    while(last_number < max_particles);
+    w.accept(totalv);
 }
