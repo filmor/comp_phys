@@ -2,6 +2,7 @@
 #include "meakin.hpp"
 #include "world.hpp"
 #include "statistics_visitor.hpp"
+#include "tga_visitor.hpp"
 
 using namespace trivial;
 
@@ -57,4 +58,10 @@ int main(int argc, char ** args)
     }
     while(last_number < max_particles);
     w.accept(totalv);
+
+    if(argc >= 2)
+    {
+        tga_visitor<world_type> tgav(args[2]);
+        w.accept(tgav);
+    }
 }
