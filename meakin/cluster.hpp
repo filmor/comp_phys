@@ -7,7 +7,6 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 
 #include "../print.hpp"
-#include "../interaction.hpp"
 #include "../hyper_cube.hpp"
 
 namespace trivial
@@ -20,6 +19,7 @@ namespace meakin
     {
     public:
         typedef Particle particle_type;
+        typedef typename Particle::interaction_type interaction_type;
         typedef typename Particle::position_type position_type;
 
         class const_iterator
@@ -171,15 +171,17 @@ namespace meakin
         {}
 
         inline friend
-        interaction::result_type interact (static_cluster const& lhs,
-                                           static_cluster const& rhs)
+        void interact (static_cluster const& lhs,
+                       static_cluster const& rhs,
+                       interaction_type& state)
         {
             typedef static_cluster::position_type position_type;
+
             if (
                 abs(lhs.get_center() - rhs.get_center()) >
                     lhs.get_radius() + rhs.get_radius()
                )
-                return interaction::NONE;
+                return;
 
             static_cluster const* smaller_one;
             static_cluster const* bigger_one;
@@ -204,11 +206,12 @@ namespace meakin
                         + (2 * (k % 2) - 1) * get_unit_vector<position_type>(k / 2);
 
                     if(bigger_one->has_particle_at(p))
-                        return interaction::MERGE;
+                    {
+                        state.set_merge();
+                        return;
+                    }
                 }
             }
-
-            return interaction::NONE;
         }
 
     protected:

@@ -19,7 +19,8 @@ namespace tube
 
         void move (typename Particle::position_type::vector_type const& v)
         {
-            if(--wait_ == 0)        //TODO should be done with probabilities once interactions are implented
+            if(--wait_ == 0)
+            //TODO should be done with probabilities once interactions are implented
             {
                 ++meakin::static_cluster<Particle>::cube_center_[0];
                 ++meakin::static_cluster<Particle>::ball_center_[0];

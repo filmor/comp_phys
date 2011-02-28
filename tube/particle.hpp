@@ -16,6 +16,8 @@ namespace tube
     {
     public:
         typedef Position position_type;
+        typedef standard_interaction<Position> interaction_type;
+
         static const unsigned slowness = Slowness;
 
         // TODO: Encapsulate or remove
@@ -23,9 +25,10 @@ namespace tube
 
         flowing_particle(const Position& pos) : position(pos), wait_(1) {}
 
-        friend interaction::result_type
-            interact(const flowing_particle& particle,
-                     const flowing_cluster<flowing_particle>& cluster)
+        friend
+        void interact (const flowing_particle& particle,
+                       const flowing_cluster<flowing_particle>& cluster,
+                       interaction_type& state)
         {
             // TODO: Stickyness
             for (unsigned n = 0; n < Position::dimension * 2; ++n)
@@ -33,24 +36,24 @@ namespace tube
                 const Position p = particle.position + (2 * (n % 2) - 1) 
                                  * get_unit_vector<Position>(n / 2);
                 if (cluster.has_particle_at(p))
-                    return interaction::MERGE;
+                    state.set_merge();
             }
-            return interaction::NONE;
         }
 
-        friend interaction::result_type
-            interact(const flowing_particle& particle1,
-                     const flowing_particle& particle2)
+        friend
+        void interact (const flowing_particle& particle1,
+                       const flowing_particle& particle2,
+                       interaction_type& state)
         {
             if (abs_1(particle1.position - particle2.position) <= 1)
-                return interaction::MERGE;
-            else
-                return interaction::NONE;
+                state.set_merge();
         }
 
-        void move(typename Position::vector_type const& vec)
+        void move (typename Position::vector_type const& vec)
         {
-            if(--wait_ == 0)        //TODO should be done with probabilities once interactions are implented
+            if(--wait_ == 0)
+            // TODO should be done with probabilities once interactions are
+            //      implemented
             {
                 ++position[0];
                 wait_ = Slowness;

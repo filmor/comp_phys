@@ -13,6 +13,7 @@ namespace eden
     {
     public:
         typedef Position position_type;
+        typedef standard_interaction<Position> interaction_type;
 
         //TODO encapsulate
         position_type position; 
@@ -21,16 +22,24 @@ namespace eden
 
         static_particle(const Position& pos) : position(pos), score(0) {}
 
-        friend interaction::result_type interact(const static_particle& particle, const static_cluster<static_particle>& cluster)
+        friend
+        void interact (const static_particle& particle,
+                       const static_cluster<static_particle>& cluster,
+                       interaction_type& state)
         {
             for (unsigned n = 0; n < Position::dimension * 2; ++n)
-                if(cluster.has_particle_at(particle.position + (2 * (n % 2) - 1) * get_unit_vector<Position>(n / 2)))
-                    return interaction::MERGE;
-            return interaction::NONE;
+                if(cluster.has_particle_at(particle.position
+                                            + (2 * (n % 2) - 1)
+                                            * get_unit_vector<Position>(n / 2))
+                  )
+                    state.set_merge();
         }
 
-        friend interaction::result_type interact(const static_particle& particle1, const static_particle& particle2)
-        { return interaction::NONE; }
+        friend
+        void interact (const static_particle& particle1,
+                       const static_particle& particle2,
+                       interaction_type& state)
+        {}
 
         void move(typename Position::vector_type const& vec) {}
     };

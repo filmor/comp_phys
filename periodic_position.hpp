@@ -47,7 +47,7 @@ namespace trivial
         {
             p.clean_coord();
             position<N> const& pos = p;
-            return abs2(p);
+            return abs2(pos);
         }
 
         inline friend

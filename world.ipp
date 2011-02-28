@@ -8,18 +8,6 @@ namespace trivial
 
     namespace
     {
-        template <typename Vector, typename Rng>
-        Vector generate_random_vector(Rng& generator)
-        {
-            static std::uniform_int_distribution<unsigned> dist
-                (0, Vector::dimension * 2);
-            
-            const auto index = dist(generator);
-
-            return (index % 2 == 1 ? 1 : -1) * 
-                    get_unit_vector<Vector>(index / 2);
-        }
-
         template <typename T>
         void remove_element (T& vec, std::size_t index)
         {
@@ -37,11 +25,11 @@ namespace trivial
     {
         updater_(particles_, clusters_, gen_);
 
-        // TODO: Probability matrix for the particle!
-
         // Order matters here!
         for (unsigned i = 0; i < particles_.size(); ++i)
         {
+            typename particle_type::interaction_type state;
+            
             std::vector<std::size_t> particles_to_join;
             std::vector<std::size_t> clusters_to_join;
 
@@ -51,8 +39,9 @@ namespace trivial
                 if (i == j)
                     continue;
 
-                auto result = interact(particles_[i], particles_[j]);
-                if (result == interaction::MERGE)
+                interact(particles_[i], particles_[j], state);
+
+                if (state.merge(gen_))
                 {
                     particles_to_join.push_back(j);
                 }
@@ -61,8 +50,8 @@ namespace trivial
             // Collect clusters to join with
             for (unsigned k = 0; k < clusters_.size(); ++k)
             {
-                auto result = interact(particles_[i], clusters_[k]);
-                if (result == interaction::MERGE)
+                interact(particles_[i], clusters_[k], state);
+                if (state.merge(gen_))
                 {
                     clusters_to_join.push_back(k);
                 }
@@ -71,7 +60,7 @@ namespace trivial
             // If we don't merge the particle with anything we move it
             if (clusters_to_join.empty() && particles_to_join.empty())
             {
-                particles_[i].move(generate_random_vector<vector_type>(gen_));
+                state.move(particles_[i], gen_);
                 continue;
             }
 
@@ -113,14 +102,17 @@ namespace trivial
 
         for (unsigned i = 0; i < clusters_.size(); ++i)
         {
+            typename cluster_type::interaction_type state;
+
             std::vector<std::size_t> clusters_to_join;
 
             for (unsigned j = 0; j < clusters_.size(); ++j)
             {
                 // This is intended! We split clusters in updater_()
                 if (i == j) continue;
-                auto result = interact(clusters_[i], clusters_[j]);
-                if (result == interaction::MERGE)
+                
+                interact(clusters_[i], clusters_[j], state);
+                if (state.merge(gen_))
                 {
                     clusters_to_join.push_back(j);
                 }
@@ -128,7 +120,9 @@ namespace trivial
 
             // first cluster never needs to move
             if (i > 0 && clusters_to_join.empty())
-                clusters_[i].move(generate_random_vector<vector_type>(gen_));
+            {
+                state.move(clusters_[i], gen_);
+            }
 
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )
             {
