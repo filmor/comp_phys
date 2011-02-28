@@ -10,10 +10,11 @@ using namespace trivial;
 int main()
 {
     const unsigned dimensions = 2;
-    const int radius = 40;
+    const int radius = 200;
     const int length = 200;
     const unsigned rate = 5;
     const unsigned slowness = 2;
+    const unsigned spacing = 50;
    /* 
     const unsigned dimensions = 3;
     const int radius = 10;
@@ -30,7 +31,7 @@ int main()
     typedef tube::flowing_cluster<particle_type>
         cluster_type;
     
-    typedef tube::uniform_updater<particle_type, cluster_type, -length / 2, length / 2, radius, rate>
+    typedef tube::uniform_updater<particle_type, cluster_type, -length / 2, length / 2, radius, rate, spacing>
         updater_type;
     
     typedef world<particle_type, cluster_type, updater_type>
@@ -42,12 +43,10 @@ int main()
     position_type p;
 
     if(dimensions == 2)
-        for(int x = 0; x <= length / 2; ++x)
+        for(int y = 0; y <= 1.5 * radius; ++y)
         {
-            p[0] = x; p[1] = 1.5 * radius;    bounds.add_particle(particle_type(p));
-            p[0] = -x;                      bounds.add_particle(particle_type(p));
-            p[1] = -1.5 * radius;             bounds.add_particle(particle_type(p));
-            p[0] = x;                       bounds.add_particle(particle_type(p));
+            p[0] = length / 2; p[1] = y;    bounds.add_particle(particle_type(p));
+            p[1] = -y;                  bounds.add_particle(particle_type(p));
         }
     else
         for(p[0] = -length / 2; p[0] <= length / 2; ++p[0])

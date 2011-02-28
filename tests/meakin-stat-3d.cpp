@@ -1,11 +1,7 @@
-#include <cstdlib>
-#include <random>
-
 #include "position.hpp"
 #include "meakin.hpp"
 #include "world.hpp"
 #include "statistics_visitor.hpp"
-#include "tga_visitor.hpp"
 
 using namespace trivial;
 
@@ -15,7 +11,7 @@ int main(int argc, char ** args)
     if(max_particles <= 0)
         max_particles = 10000;
 
-    const unsigned dimensions = 2;
+    const unsigned dimensions = 3;
 
     typedef position<dimensions>
         position_type;
@@ -23,17 +19,13 @@ int main(int argc, char ** args)
     typedef meakin::sticky_particle<position_type>
         particle_type;
 
-    typedef meakin::moving_cluster<particle_type>
+    typedef meakin::static_cluster<particle_type>
         cluster_type;
 
-    typedef meakin::cluster_updater<particle_type, cluster_type, 
-        world<particle_type, cluster_type, meakin::cluster_updater<particle_type, cluster_type,
-            world<particle_type, cluster_type, meakin::diffusion_limited_updater<particle_type, cluster_type, 1>>,
-            50>>,
-        2500>
-        bath_type;
+    typedef meakin::diffusion_limited_updater<particle_type, cluster_type, 1>
+        updater_type;
 
-    typedef world<particle_type, cluster_type, bath_type>
+    typedef world<particle_type, cluster_type, updater_type>
         world_type;
 
     world_type w;
@@ -53,22 +45,16 @@ int main(int argc, char ** args)
             stat::dens_dens_correlation<world_type>>
         totalv(std::cout);
 
-    unsigned particles = 0;
+    unsigned last_number = 0;
     do 
     {
         w.step();
-        if(w.get_clusters().size() == 1)
+        if(w.get_clusters().back().get_size() >= last_number + 100)
         {
-            particles = w.get_clusters().back().get_size();
             w.accept(rogv);
+            last_number = w.get_clusters().back().get_size();
         }
     }
-    while(particles < max_particles);
+    while(last_number < max_particles);
     w.accept(totalv);
-
-    if(argc >= 2)
-    {
-        tga_visitor<world_type> tgav(args[2]);
-        w.accept(tgav);
-    }
 }

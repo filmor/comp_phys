@@ -11,7 +11,7 @@ namespace trivial
 namespace tube
 {
 
-    template <class Particle, class Cluster, int Inlet, int Outlet, unsigned Radius, unsigned Rate>
+    template <class Particle, class Cluster, int Inlet, int Outlet, unsigned Radius, unsigned Rate, unsigned Spacing = 1>
     class uniform_updater
     {
     public:
@@ -54,7 +54,8 @@ namespace tube
                 position_type pos;
                 pos[0] = Inlet;
                 for(unsigned n = 1; n < position_type::dimension; ++n)
-                    pos[n] = spawn_dist_(rng);
+                    pos[n] = (spawn_dist_(rng) / Spacing) * Spacing;
+
                 bool collision = false;
                 for(unsigned n = 0; n < particles.size(); ++n)
                     if(particles[n].position == pos)

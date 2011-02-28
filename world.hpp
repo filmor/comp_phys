@@ -20,7 +20,7 @@ namespace trivial
         typedef Cluster                             cluster_type;
         static const unsigned dimension = position_type::dimension;
 
-        world(RandomNumberGenerator rng = RandomNumberGenerator(time(0)))
+        world(RandomNumberGenerator rng = RandomNumberGenerator(time(0) + clock()))
             : gen_(rng)
         {}
 
