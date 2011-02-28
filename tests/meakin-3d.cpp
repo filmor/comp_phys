@@ -8,7 +8,6 @@ using namespace trivial;
 
 int main()
 {
-    const unsigned size = 0;
     const unsigned dimensions = 3;
 
     typedef position<dimensions>
@@ -20,7 +19,7 @@ int main()
     typedef meakin::static_cluster<particle_type>
         cluster_type;
 
-    typedef meakin::diffusion_limited_updater<particle_type, cluster_type, size, 1>
+    typedef meakin::diffusion_limited_updater<particle_type, cluster_type, 1>
         updater_type;
     
     typedef world<particle_type, cluster_type, updater_type>

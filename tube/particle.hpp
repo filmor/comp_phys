@@ -1,5 +1,5 @@
-#ifndef TRIVIAL_PARTICLE_HPP
-#define TRIVIAL_PARTICLE_HPP
+#ifndef TRIVIAL_TUBE_PARTICLE_HPP
+#define TRIVIAL_TUBE_PARTICLE_HPP
 
 #include <vector>
 
@@ -8,23 +8,24 @@
 
 namespace trivial
 {
-namespace meakin
+namespace tube
 {
 
-    template <typename Position>
-    class sticky_particle
+    template <typename Position, unsigned Slowness>
+    class flowing_particle
     {
     public:
         typedef Position position_type;
+        static const unsigned slowness = Slowness;
 
         // TODO: Encapsulate or remove
         position_type position; 
 
-        sticky_particle(const Position& pos) : position(pos) {}
+        flowing_particle(const Position& pos) : position(pos), wait_(1) {}
 
         friend interaction::result_type
-            interact(const sticky_particle& particle,
-                     const static_cluster<sticky_particle>& cluster)
+            interact(const flowing_particle& particle,
+                     const flowing_cluster<flowing_particle>& cluster)
         {
             // TODO: Stickyness
             for (unsigned n = 0; n < Position::dimension * 2; ++n)
@@ -38,8 +39,8 @@ namespace meakin
         }
 
         friend interaction::result_type
-            interact(const sticky_particle& particle1,
-                     const sticky_particle& particle2)
+            interact(const flowing_particle& particle1,
+                     const flowing_particle& particle2)
         {
             if (abs_1(particle1.position - particle2.position) <= 1)
                 return interaction::MERGE;
@@ -49,8 +50,16 @@ namespace meakin
 
         void move(typename Position::vector_type const& vec)
         {
-            position += vec;
+            if(--wait_ == 0)        //TODO should be done with probabilities once interactions are implented
+            {
+                ++position[0];
+                wait_ = Slowness;
+            }
+            else position += vec;
         }
+
+    private:
+        unsigned wait_;
     };
 }
 }

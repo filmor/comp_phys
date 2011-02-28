@@ -6,6 +6,7 @@
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 
+#include "../interaction.hpp"
 #include "../meakin/cluster.hpp"
 
 namespace trivial
@@ -22,22 +23,23 @@ namespace eden
 
         static_cluster(float eta = 1, float nm = 102400) : eta_(eta), nm_(nm) {}
 
-        template<class RandomNumberGenerator> 
-        void add_particle (Particle p, RandomNumberGenerator & rng)
+        void add_particle (Particle p)
         {
-            base::add_particle(p, rng);
+            base::add_particle(p);
 
             if(base::particles_.size() > 1)
             {
-                std::vector<unsigned> neighbours;
+                position_type parent;
                 for(unsigned n = 0; n < 2 * position_type::dimension; ++n)
-                    if(has_particle_at(p.position + (n % 2 ? 1 : -1) * get_unit_vector<position_type>(n / 2))) // p still holds absolute position
-                        neighbours.push_back(n);
-                unsigned n = neighbours[std::uniform_int_distribution<unsigned>(0, neighbours.size() - 1)(rng)];
-                base::particles_.back().parent = (n % 2 ? 1 : -1) * get_unit_vector<position_type>(n / 2);
-                base::data_[base::particles_.back().position]->parent = base::particles_.back().parent;
+                {
+                    position_type pos = p.position + (n % 2 ? 1 : -1) * get_unit_vector<position_type>(n / 2); // p still holds absolute position
+                    if(has_particle_at(pos) && base::data_[pos - base::cube_center_]->score > base::data_[p.position + parent - base::cube_center_]->score)
+                        parent = pos - p.position;
+                }       
+                base::particles_.back().parent = parent;
+                base::data_[base::particles_.back().position]->parent = parent;
 
-                add_chain_score(base::particles_.back().position, std::pow(1 + chain_length(base::particles_.back().position), -eta_));
+                add_chain_score(base::particles_.back().position, sun_score(base::particles_.back().position));
 
                 for(int m = base::particles_.size() - 1; m >= 0; --m)
                 {
@@ -55,11 +57,7 @@ namespace eden
             }
         } 
 
-        template<class RandomNumberGenerator>
-        void merge (static_cluster const& other, RandomNumberGenerator & rng)
-        {
-            throw "eden cluster may not be merged";
-        }
+        void merge (static_cluster const& other) {}
 
     private:
         float eta_, nm_;
@@ -86,6 +84,20 @@ namespace eden
 
             if(abs_inf(base::data_[p]->parent) > 0)   // this is not yet the origin
                 add_chain_score(p + base::data_[p]->parent, score);
+        }
+
+        float standard_score(position_type & p)
+        { return std::pow(1 + chain_length(p), -eta_); }
+
+        float sun_score(position_type & p)
+        {
+static unsigned counter = 0;
+//print(counter);
+            if(p[1] < 0)
+                return 0;
+            else if(++counter / 10000 /*% 2*/)
+                return std::max(0., -(float)(p[0] + 1) / (abs(p) + 1) * (1. / chain_length(p)));
+            else return std::max(0., (float)(p[0] + 1) / (abs(p) + 1) * (1. / chain_length(p)));
         }
     };
 }

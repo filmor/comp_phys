@@ -4,7 +4,7 @@
 #include <vector>
 #include <random>
 
-#include "print.hpp"
+#include "../print.hpp"
 
 namespace trivial
 {
@@ -55,7 +55,7 @@ namespace meakin
         }
     };
 
-    template <class Particle, class Cluster, int Size, unsigned FreeParticles>
+    template <class Particle, class Cluster, unsigned FreeParticles>
     class diffusion_limited_updater
     {
     public:
@@ -74,9 +74,9 @@ namespace meakin
             {
                 position_type p;
                 clusters.push_back(cluster_type());
-                clusters.back().add_particle(particle_type(p), rng);
+                clusters.back().add_particle(particle_type(p));
                 p += get_unit_vector<position_type>(0);
-                clusters.back().add_particle(particle_type(p), rng);
+                clusters.back().add_particle(particle_type(p));
                 seeded_ = true;
             }
 
@@ -164,6 +164,73 @@ namespace meakin
 
     private:
         bool done_;
+    };
+
+    template<class Particle, class Cluster, class World, unsigned Particles>
+    class cluster_updater
+    {
+    public:
+        typedef typename Particle::position_type position_type;
+        typedef Cluster cluster_type;
+        typedef Particle particle_type;
+
+        cluster_updater() {}
+
+        template<class RandomNumberGenerator>
+        void operator()(std::vector<particle_type>& particles,
+                        std::vector<cluster_type> & clusters,
+                        RandomNumberGenerator & rng) 
+        {
+            assert(clusters.size() <= 2);
+
+            if(clusters.size() == 0)
+                clusters.push_back(create_cluster());
+
+            if(clusters.size() == 2)
+            {
+                const position_type& center = clusters[0].get_center(), center_new = clusters[1].get_center();
+                const float radius = clusters[0].get_radius(), radius_new = clusters[1].get_radius();
+
+                if(abs(center - center_new) > std::max(2 * (radius + radius_new), radius + radius_new + 10))                
+                    move_to_border(clusters[0], clusters[1], rng);
+
+                return;
+            }
+
+            Cluster cluster = create_cluster();
+            move_to_border(clusters[0], cluster, rng);
+            clusters.push_back(cluster);
+        }
+
+    private:
+        std::normal_distribution<float> norm_dist_;
+
+        Cluster create_cluster()
+        {
+            World w;
+            do{ w.step(); }
+            while(w.get_clusters().back().get_size() < Particles);
+            return Cluster(w.get_clusters().back());
+        }
+
+        template<class RandomNumberGenerator>
+        void move_to_border(const Cluster & c0, Cluster & c1, RandomNumberGenerator & rng)
+        {
+            position_type pos;
+            typename position_type::float_vector_type e;
+            float mod = 0;
+            for(unsigned m = 0; m < e.size(); ++m)
+            {
+                e[m] = norm_dist_(rng);
+                mod += e[m] * e[m];
+            }
+            mod = sqrt(mod);
+            for(unsigned m = 0; m < position_type::dimension; ++m)
+                pos += get_unit_vector<position_type>(m)
+                     * (e[m] * (c0.get_radius() + c1.get_radius() + 5) / mod);
+
+            c1.move(pos + c0.get_center() - c1.get_center());
+        }
     };
 
 }

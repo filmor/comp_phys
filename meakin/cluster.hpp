@@ -6,9 +6,9 @@
 #include <boost/foreach.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 
-#include "print.hpp"
-#include "interaction.hpp"
-#include "hyper_cube.hpp"
+#include "../print.hpp"
+#include "../interaction.hpp"
+#include "../hyper_cube.hpp"
 
 namespace trivial
 {
@@ -51,8 +51,7 @@ namespace meakin
         static_cluster () : data_(0)
         {}
 
-        template<class RandomNumberGenerator> 
-        void add_particle (Particle p, RandomNumberGenerator & rng)
+        void add_particle (Particle p)
         {
             if (particles_.empty())
             {
@@ -63,7 +62,7 @@ namespace meakin
             }
             else
             {
-                auto diff = p.position - ball_center_;
+                position_type diff = p.position - ball_center_;
 
                 if (abs2(diff) > radius2_)
                 {
@@ -90,21 +89,23 @@ namespace meakin
 
                     ball_center_ += ball_center_diff;
                     ball_carry_  -= flt_vec_t(ball_center_diff);
-                    diff += ball_center_diff;
+                    diff -= ball_center_diff;
 
-                    radius2_ = abs2(diff);
-                    radius_ = std::sqrt(radius2_);
+                    //radius2_ = abs2(diff);
+                    //radius_ = std::sqrt(radius2_);
+                    radius_ = abs(diff) + 1;        //rather a workaround
+                    radius2_ = radius_ * radius_;
                 }
 
 
-                if (abs_inf(p.position - cube_center_)
+                if (abs_inf(position_type(p.position - cube_center_))
                         > data_.get_radius())
                 {
-                    auto diff = ball_center_ - cube_center_;
+                    position_type diff = ball_center_ - cube_center_;
 
                     // W00t! This works!!!
                     // print(data_);
-                    data_.grow_around(diff, abs_inf(p.position - cube_center_));
+                    data_.grow_around(diff, abs_inf(position_type(p.position - cube_center_)));
                     // print(data_);
 
                     BOOST_FOREACH( Particle& p2, particles_ )
@@ -126,22 +127,21 @@ namespace meakin
             //print(particles_.back().position);
         }
 
-        template<class RandomNumberGenerator>
-        void merge (static_cluster const& other, RandomNumberGenerator & rng)
+        void merge (static_cluster & other)
         {
-            BOOST_FOREACH(particle_type p, other.particles_)
+            BOOST_FOREACH(particle_type & p, other.particles_)
             {
                 p.position += other.cube_center_;
-                add_particle(p, rng);
+                add_particle(p);
             }
             // TODO: Remove particle from other
         }
 
         bool has_particle_at(position_type const& p) const
         {
-            if (abs2(p - ball_center_) <= radius2_ + 0.1f)
+            if (abs2(p - ball_center_) <= radius2_)
             {
-                const auto diff = p - cube_center_;
+                const position_type diff = p - cube_center_;
 
                 if (abs_inf(diff) <= data_.get_radius())
                     return data_[diff].is_initialized();
@@ -150,9 +150,7 @@ namespace meakin
         }
 
         position_type abs_position(const Particle & p) const
-        {
-            return p.position + cube_center_;
-        }
+        { return p.position + cube_center_; }
 
         std::vector<particle_type> const& get_particles () const
         { return particles_; }
@@ -229,6 +227,10 @@ namespace meakin
     class moving_cluster : public static_cluster<Particle>
     {
     public:
+        moving_cluster() {}
+
+        explicit moving_cluster(const static_cluster<Particle> & c) : static_cluster<Particle>(c) {}
+
         void move (typename Particle::position_type::vector_type const& v)
         {
             static_cluster<Particle>::cube_center_ += v;
@@ -240,6 +242,8 @@ namespace meakin
     class massive_moving_cluster : public moving_cluster<Particle>
     {
     public:
+        massive_moving_cluster() : movement_count_(0) {}
+
         void move (typename Particle::position_type::vector_type const& v)
         {
             if (++movement_count_ >= moving_cluster<Particle>::get_size())

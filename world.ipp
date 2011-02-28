@@ -85,7 +85,7 @@ namespace trivial
             else
                 cl = &(clusters_[clusters_to_join[0]]);
 
-            cl->add_particle(particles_[i], gen_);
+            cl->add_particle(particles_[i]);
             remove_element(particles_, i);
 
             // Reverse iteration because otherwise we would move
@@ -94,7 +94,7 @@ namespace trivial
             {
                 if (cl == &clusters_[index])
                     continue;
-                cl->merge(clusters_[index], gen_);
+                cl->merge(clusters_[index]);
                 remove_element(clusters_, index);
             }
 
@@ -106,7 +106,7 @@ namespace trivial
                 if (index == particles_.size())
                     to_remove = i;
 
-                cl->add_particle(particles_[to_remove], gen_);
+                cl->add_particle(particles_[to_remove]);
                 remove_element(particles_, to_remove);
             }
         }
@@ -124,14 +124,15 @@ namespace trivial
                 {
                     clusters_to_join.push_back(j);
                 }
-            }                    
+            }
 
-            if (clusters_to_join.empty())
+            // first cluster never needs to move
+            if (i > 0 && clusters_to_join.empty())
                 clusters_[i].move(generate_random_vector<vector_type>(gen_));
 
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )
             {
-                clusters_[i].merge(clusters_[index], gen_);
+                clusters_[i].merge(clusters_[index]);
                 remove_element(clusters_, index);
             }
         }

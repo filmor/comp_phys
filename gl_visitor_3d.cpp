@@ -138,6 +138,7 @@ namespace impl
 
     void gl_visitor_3d::draw_sphere(vector<3> const& v, float radius)
     {
+        glColor3f(1.0f, 1.0f, 1.0f);
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         glPolygonMode(GL_FRONT, GL_LINE);
@@ -150,8 +151,9 @@ namespace impl
         glEnable(GL_CULL_FACE);
     }
 
-    void gl_visitor_3d::draw_box(vector<3> const& v)
+    void gl_visitor_3d::draw_box(vector<3> const& v, float r, float g, float b)
     {
+        glColor3f(r, g, b);
         glPushMatrix();
         glTranslatef(v[0], v[1], v[2]);
         glCallList(cube_list_);
