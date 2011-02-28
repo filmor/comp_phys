@@ -245,6 +245,8 @@ namespace meakin
     class massive_moving_cluster : public moving_cluster<Particle>
     {
     public:
+        massive_moving_cluster() : movement_count_(0) {}
+
         void move (typename Particle::position_type::vector_type const& v)
         {
             if (++movement_count_ >= moving_cluster<Particle>::get_size())
