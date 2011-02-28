@@ -117,7 +117,7 @@ namespace trivial
 
             for (unsigned j = 0; j < clusters_.size(); ++j)
             {
-                // This is intended! We split clusters in bath_.step
+                // This is intended! We split clusters in updater_()
                 if (i == j) continue;
                 auto result = interact(clusters_[i], clusters_[j]);
                 if (result == interaction::MERGE)
@@ -126,7 +126,7 @@ namespace trivial
                 }
             }                    
 
-            if (!clusters_to_join.empty())
+            if (clusters_to_join.empty())
                 clusters_[i].move(generate_random_vector<vector_type>(gen_));
 
             BOOST_REVERSE_FOREACH( std::size_t index, clusters_to_join )

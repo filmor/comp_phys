@@ -197,18 +197,16 @@ namespace meakin
                 bigger_one = &rhs;
             }
 
-            for (unsigned m = 0; m < smaller_one->get_size(); ++m)
+            BOOST_FOREACH(auto const& particle, smaller_one->get_particles())
             {
                 for (int k = 0; k < position_type::dimension * 2; ++k)
                 {
-                    position_type p = smaller_one->get_particles()[m].position
-                                    + (2 * (k % 2) - 1)
-                                    * get_unit_vector<position_type>(k / 2);
+                    const position_type p = particle.position 
+                        + smaller_one->cube_center_
+                        + (2 * (k % 2) - 1) * get_unit_vector<position_type>(k / 2);
 
                     if(bigger_one->has_particle_at(p))
-                    {
                         return interaction::MERGE;
-                    }
                 }
             }
 
@@ -233,7 +231,6 @@ namespace meakin
     public:
         void move (typename Particle::position_type::vector_type const& v)
         {
-            print("moving");
             static_cluster<Particle>::cube_center_ += v;
             static_cluster<Particle>::ball_center_ += v;
         }

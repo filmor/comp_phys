@@ -42,10 +42,27 @@ namespace trivial
             return *this;
         }
 
+        inline friend
+        float abs2 (periodic_position p)
+        {
+            p.clean_coord();
+            position<N> const& pos = p;
+            return abs2(p);
+        }
+
+        inline friend
+        float abs_inf (periodic_position p)
+        {
+            p.clean_coord();
+            position<N> const& pos = p;
+            return abs_inf(pos);
+        }
+        
+
     private:
         void clean_coord()
         {
-            for(unsigned n = 0; n < N; ++n)
+            for (unsigned n = 0; n < N; ++n)
             {
                 // should be faster than calculation because always
                 // close to valid position
