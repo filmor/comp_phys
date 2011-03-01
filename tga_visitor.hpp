@@ -2,6 +2,7 @@
 #define TRIVIAL_TGA_VISITOR_HPP
 
 #include <fstream>
+#include <climits>
 
 #include "visitor.hpp"
 #include "eden.hpp"
@@ -45,14 +46,14 @@ namespace trivial
         {
             assert(World::dimension == 2);
 
-            int xmin = 0, ymin = 0, xmax = 0, ymax = 0;
+            int xmin = INT_MAX, ymin = INT_MAX, xmax = INT_MIN, ymax = INT_MIN;
 
             for (unsigned n = 0; n < world.get_clusters().size(); ++n)
             {
                 xmin = std::min(xmin, (int)std::floor(world.get_clusters()[n].get_center()[0] - world.get_clusters()[n].get_radius()));
                 xmax = std::max(xmax, (int)std::ceil(world.get_clusters()[n].get_center()[0] + world.get_clusters()[n].get_radius()));
-                ymin = std::min(xmin, (int)std::floor(world.get_clusters()[n].get_center()[1] - world.get_clusters()[n].get_radius()));
-                ymax = std::max(xmax, (int)std::ceil(world.get_clusters()[n].get_center()[1] + world.get_clusters()[n].get_radius()));
+                ymin = std::min(ymin, (int)std::floor(world.get_clusters()[n].get_center()[1] - world.get_clusters()[n].get_radius()));
+                ymax = std::max(ymax, (int)std::ceil(world.get_clusters()[n].get_center()[1] + world.get_clusters()[n].get_radius()));
             }
 
             char header[] = { 0, // id length 0
@@ -68,7 +69,7 @@ namespace trivial
                     24, // bpp
                     0 // no attribute-bits, origin bottom left
                 };
-            
+
             std::ofstream o(filename_, std::ofstream::binary);
             o.write(header, sizeof(header));
 
@@ -84,7 +85,7 @@ namespace trivial
                 {
                     const typename World::particle_type & p = world.get_clusters()[n].get_particles()[m];
                     set_color(p, color);
-                    o.seekp(data_start + sizeof(color) * ((xmax - xmin + 1) * (p.position[1] - ymin) + (p.position[0] - xmin)));
+                    o.seekp(data_start + sizeof(color) * ((xmax - xmin + 1) * (world.get_clusters()[n].abs_position(p.position)[1] - ymin) + (world.get_clusters()[n].abs_position(p.position)[0] - xmin)));
                     o.write(color, sizeof(color));
                 }
 
