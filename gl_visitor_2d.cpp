@@ -69,7 +69,7 @@ namespace impl
     void gl_visitor_2d::draw_particle(const eden::static_particle<position<2>> & p, const vector<2> & offset)
     {
         float r, g, b;
-        set_gradient_color(p.score * 1.0, r, g, b);
+        set_gradient_color(p.score * 0.1, r, g, b);
         draw_box(p.position + offset, r, g, b);
     }
 

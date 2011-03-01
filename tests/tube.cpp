@@ -10,11 +10,11 @@ using namespace trivial;
 int main()
 {
     const unsigned dimensions = 2;
-    const int radius = 40;
-    const int length = 200;
+    const int radius = 30;
+    const int length = 300;
     const unsigned rate = 5;
     const unsigned slowness = 2;
-   /* 
+/*    
     const unsigned dimensions = 3;
     const int radius = 10;
     const int length = 20;
