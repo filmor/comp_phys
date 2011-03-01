@@ -19,7 +19,7 @@ namespace tube
         typedef Cluster cluster_type;
         typedef Particle particle_type;
 
-        uniform_updater() : spawn_dist_(-Radius, Radius), wait_(1), entered_(0), passed_(0), step_(0)
+        uniform_updater() : spawn_dist_(-Radius, Radius), wait_(1), passed_(0), step_(0), last_action_(0)
         { assert(Inlet < Outlet); }
 
         template<class RandomNumberGenerator>
@@ -29,7 +29,6 @@ namespace tube
             for(unsigned n = 0; n < particles.size(); ++n)
                 if(particles[n].position[0] < Inlet)
                 {
-                    --entered_;
                     particles.erase(particles.begin() + n);
                 }
                 else if(particles[n].position[0] > Outlet)
@@ -40,7 +39,6 @@ namespace tube
             for(unsigned n = 0; n < clusters.size(); ++n)
                 if(clusters[n].get_center()[0] < Inlet)
                 {
-                    entered_ -= clusters[n].get_size();
                     clusters.erase(clusters.begin() + n);
                 }
                 else if(clusters[n].get_center()[0] > Outlet)
@@ -74,7 +72,6 @@ namespace tube
                 if(!collision)
                 {
                     particles.push_back(particle_type(pos));
-                    ++entered_;
                 }
 
                 wait_ = Rate;
@@ -82,14 +79,24 @@ namespace tube
 
             if(++step_ % (100 * Rate) == 0)
             {
-                print((float)passed_/(100 * Rate));
+                float res = (float)passed_/(100 * Rate);
                 passed_ = 0;
+ /*               if(res > 0)
+                {
+                    last_action_ = step_;
+                }
+                else if(last_action_ > 0 && step_ > last_action_ + 1000 * Rate)
+                {
+                    print(last_action_);
+                    exit(0);
+                }*/
+                print(res);
             }
         }
 
         private:
             std::uniform_int_distribution<int> spawn_dist_;
-            unsigned wait_, entered_, passed_, step_;
+            unsigned wait_, passed_, step_, last_action_;
     };
 
 }
