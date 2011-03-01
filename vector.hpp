@@ -125,12 +125,6 @@ namespace trivial
             return out;
     }
 
-    template <typename T>
-    T square (T const& t)
-    {
-        return t * t;
-    }
-    
 }
 
 #endif

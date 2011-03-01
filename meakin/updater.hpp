@@ -188,10 +188,14 @@ namespace meakin
 
             if(clusters.size() == 2)
             {
-                const position_type& center = clusters[0].get_center(), center_new = clusters[1].get_center();
-                const float radius = clusters[0].get_radius(), radius_new = clusters[1].get_radius();
+                const position_type& center = clusters[0].get_center();
+                const position_type& center_new = clusters[1].get_center();
+                const float radius = clusters[0].get_radius();
+                const float radius_new = clusters[1].get_radius();
 
-                if(abs(center - center_new) > std::max(2 * (radius + radius_new), radius + radius_new + 10))                
+                if(abs(center - center_new) > 
+                        std::max(2 * (radius + radius_new),
+                                      radius + radius_new + 10))
                     move_to_border(clusters[0], clusters[1], rng);
 
                 return;

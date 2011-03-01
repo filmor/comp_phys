@@ -9,7 +9,7 @@ namespace trivial
     namespace
     {
         template <typename T>
-        void remove_element (T& vec, std::size_t index)
+        inline void remove_element (T& vec, std::size_t index)
         {
             if (index < vec.size() - 1)
             {

@@ -11,12 +11,12 @@ namespace trivial
 namespace meakin
 {
 
-    template <typename Position>
+    template <typename Position, typename Interaction = standard_interaction<Position>>
     class sticky_particle
     {
     public:
         typedef Position position_type;
-        typedef standard_interaction<Position> interaction_type;
+        typedef Interaction interaction_type;
 
         // TODO: Encapsulate or remove
         position_type position; 

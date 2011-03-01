@@ -3,6 +3,8 @@
 
 #include "vector.hpp"
 
+#include <random>
+
 namespace trivial
 {
 
@@ -46,14 +48,14 @@ namespace trivial
     class weighted_interaction
     {
     public:
-        weighted_interaction () : merge_(0.0f)
+        weighted_interaction() : merge_(0.0f)
         {
             for (int i = 0; i < 2 * Position::dimension; ++i)
-                movement_ = 1.0;
+                movement_[i] = 1.0;
         }
 
         template <typename Object, typename Rng>
-        float move (Object& obj, Rng& rng)
+        void move (Object& obj, Rng& rng)
         {
             for (int i = 1; i < 2 * Position::dimension; ++i)
                 movement_[i] += movement_[i-1];
@@ -67,10 +69,29 @@ namespace trivial
 
             int i = iter - movement_.begin();
 
-            assert(i >= 0 && i < 2 * Position::dimension - 1);
+            if (iter == movement_.end())
+                return;
 
-            return (i % 2 == 1 ? 1 : -1) * 
-                    get_unit_vector<Position>(i / 2);
+            assert(i >= 0 && i < 2 * Position::dimension);
+
+            obj.move((i % 2 == 1 ? 1 : -1) * 
+                        get_unit_vector<Position>(i / 2));
+        }
+
+        template <typename Rng>
+        bool merge (Rng& rng)
+        {
+            static std::uniform_real_distribution<float> dist;
+
+            return dist(rng) < merge_;
+        }
+
+        void set_merge(float m) { merge_ = m; }
+        void set_merge() { merge_ = 1.0f; }
+
+        void mult_movement (int i, float m)
+        {
+            movement_[i] *= m;
         }
 
     private:
