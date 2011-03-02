@@ -2,11 +2,11 @@
 #include "meakin.hpp"
 #include "world.hpp"
 #include "gl_visitor.hpp"
-#include "population_visitor.hpp"
+#include "tga_visitor.hpp"
 
 using namespace trivial;
 
-int main()
+int main(int argc, char ** args)
 {
     const unsigned size = 400;
     const unsigned dimension = 2;
@@ -29,13 +29,17 @@ int main()
 
     world_type w;
     gl_visitor<world_type> glv;
-    population_visitor<world_type> pv;
 
-    for (unsigned int n = 0;; ++n)
+    do
     {
         w.accept(glv);
-        if(n % 100 == 0)
-            w.accept(pv);
         w.step();
+    }
+    while(w.get_clusters().size() > 1 || w.get_particles().size() > 0);
+
+    if(argc > 1)
+    {
+        tga_visitor<world_type> tgav(args[1]);
+        w.accept(tgav);
     }
 }
