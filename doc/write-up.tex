@@ -1,9 +1,9 @@
-\documentclass[twocolumn,10pt]{scrartcl}
+\documentclass[twocolumn, 10pt]{scrartcl}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{geometry}
+\usepackage{geometry, multicol}
 \usepackage{listings, xcolor}
 \usepackage{multimedia, tikz}
 \usetikzlibrary{decorations.fractals}
@@ -31,6 +31,7 @@
 
     \maketitle
  
+%  \begin{multicols}{2}
     \section{Introduction}
         In 1981, Witten and Sander discovered that complex dendritic structures could be created by having
         `particles' perform a random walk on a lattice and stick together on contact (fig.~\ref{fig-wsdendrite}).
@@ -51,7 +52,7 @@
         some earlier heuristical results.
 
         {\small
-            \paragraph{Further reading}
+            \paragraph{Further Reading}
                 Since this text is composed in a review-like fashion and most of the information presented is
                 considered to be well-known today, we will give hints for further reading at the end of each
                 section instead of cluttering the text with citations.
@@ -60,15 +61,15 @@
                 \cite{src-wittensander} and \cite{src-meakin1}.
         }
 
-        \begin{figure}
+        \begin{figure*}
             \center
-            \includegraphics[width=5cm]{img/wsdendrite.jpg}
+            \includegraphics[width=8cm]{img/wsdendrite.jpg}
             \caption[A typical dendritic structure]
                 {\small\textbf{A typical dendritic structure} grown similar to the original model of Witten
                 and Sander (text). Colour-coded is the age of each particle. The cluster consists of about
                 60,000 particles in total.}
             \label{fig-wsdendrite}
-        \end{figure}
+        \end{figure*}
 
     \section{Some Mathematics}
         \subsection{Why talk of fractal dimensionality?}
@@ -299,11 +300,11 @@
 
         \emph{Number limited aggregation} consists of the following steps
         \begin{enumerate}
-            \item Create a given number of particles on a lattice with periodic boundary conditions;
-            \item Particles which touch are joined to clusters;
-            \item Particles which touch clusters are added to them;
-            \item Cluster which touch are merged;
-            \item Move all particles and clusters randomly;
+            \item Create a given number of particles on a lattice with periodic boundary conditions
+            \item Particles which touch are joined to clusters
+            \item Particles which touch clusters are added to them
+            \item Cluster which touch are merged
+            \item Move all particles and clusters randomly
             \item Go back to step 2.
         \end{enumerate}
         Optionally, clusters have a certain probability not to move which is proportional to the number of particles
@@ -325,6 +326,7 @@
         \end{figure}
 
     \section{The Eden-Meakin Model}
+
         In contrast to the Meakin model discussed before, the Eden-Meakin model is inspired by organic rather than
         anorganic processes. In 1961, M.~Eden investigated the following growth model on a lattice:
         \begin{enumerate}
@@ -355,6 +357,14 @@
         fractal dimension,
         the exact value of which depends on the cut-off score. There are other properties, however, which
         might be considered even more interesting.
+        \begin{figure}
+            \center
+            \includegraphics[width=5cm]{img/eden.png}
+            \caption[The Eden-Meakin model]
+                {\small\textbf{The Eden-Meakin model} produces different dendritic structures depending on the
+                cut off-score (colour-coded).}
+            \label{fig-eden}
+        \end{figure}
 
         First of all, the cluster only reaches a finite size. This is conceivable, because the larger it
         becomes, the more possibilities there are to add new particles and the smaller is the score a new
@@ -367,6 +377,16 @@
         At the time marked by the vertical bar, the parameter sets are swapped. Soon after, the cluster
         sizes have swapped as well, thus adapting to the new conditions. This stands in clear contrast to the
         strictly irreversible growth models discussed so far.
+        \begin{figure}
+            \center
+            \includegraphics[width=7cm]{img/edenadap.png}
+            \caption[The adaptive nature of the Eden-Meakin model]
+                {\small\textbf{The adaptive nature of the Eden-Meakin model} can be seen, if two clusters are
+                grown with different parameter sets. If the parameter sets are exchanged, the cluster sizes
+                swap as well. The total score increases monotonically. This renders the cluster more passive
+                towards changed over time and can be interpreted as a memory.}
+            \label{fig-edenadap}
+        \end{figure}
 
         Third, the cluster has a memory. It can also be seen from fig.~\ref{fig-edenadap} that the total score
         of the clusters keeps on growing all the time. Because most of it is allotted to the backbone, it
@@ -381,27 +401,6 @@
             The original model as presented by M. Eden in 1961 is \cite{src-eden}. Meakin's modifications are
             covered in \cite{src-meakin-eden}.
         }
-
-        \begin{figure}
-            \center
-            \includegraphics[width=5cm]{img/eden.png}
-            \caption[The Eden-Meakin model]
-                {\small\textbf{The Eden-Meakin model} produces different dendritic structures depending on the
-                cut off-score (colour-coded).}
-            \label{fig-eden}
-        \end{figure}
-
-        \begin{figure}
-            \center
-            \includegraphics[width=7cm]{img/edenadap.png}
-            \caption[The adaptive nature of the Eden-Meakin model]
-                {\small\textbf{The adaptive nature of the Eden-Meakin model} can be seen, if two clusters are
-                grown with different parameter sets. If the parameter sets are exchanged, the cluster sizes
-                swap as well. The total score increases monotonically. This renders the cluster more passive
-                towards changed over time and can be interpreted as a memory.}
-            \label{fig-edenadap}
-        \end{figure}
-
     \section{\lstinline!trivial! -- a fractal growth toolkit}
         To implement the models described above we designed a generic C++ toolkit to 
         In our implementation we tried to focus on the following design goals, using object-oriented techniques:
@@ -497,7 +496,7 @@ for (int n = 0; n < 1e6; ++n)
                 on the compilers optimisation capabilities (for example removal of empty function calls if
                 \lstinline'interact' does nothing, and removal of empty loops).
 
-            \subsubsection*{The Particle}
+            \subsubsection{The Particle}
                 The particles are the most basic objects in our simulations. In the current version they consist merely
                 of positional information and for the Eden model of the rating of the particle. There is also a
                 prototype of a Meakin implementation featuring Coulomb interaction, where the particles also carry
@@ -599,13 +598,13 @@ for (int n = 0; n < 1e6; ++n)
                 Because it was very difficult to see anything from the 3D renderings, we added an anaglyph drawer, which
                 enabled us to see the fractal structure with red-cyan glasses. One of those renderings is seen in
                 Figure~\ref{fig-anaglyph}.
-                \begin{figure}
+                \begin{figure*}
                     \center
-                    \includegraphics[width=7cm]{img/anaglyph.png}
+                    \includegraphics[width=10cm]{img/anaglyph.png}
                     \caption[An anaglyph of a 3-d Meakin cluster]
                         {\small\textbf{An anaglyph of a 3-d Meakin cluster} of 8,000 particles}
                     \label{fig-anaglyph}
-                \end{figure}
+                \end{figure*}
 
                 Our \lstinline'statistics_visitor' lets one plug different calculators together and outputs a header and
                 data lines to a specified stream. The produced files where used for all our dimensionality calculations.
@@ -837,4 +836,5 @@ for (int n = 0; n < 1e6; ++n)
         \bibitem{src-matsumoto}M. Matsumoto, T. Nishimura, Mersenne twister. In: ACM Transactions on Modeling and
           Computer Simulation. 8, 1998
     \end{thebibliography}
+%  \end{multicols}
 \end{document}
