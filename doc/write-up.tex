@@ -106,7 +106,7 @@
 
             The catch is this -- what dimension do you \emph{want} to assign to this set? It should probably be
             one dimensional. After all it has been constructed from lines. But then again, its length is infinite
-            (precisely $\lim_{n\rightarrow\infty}\left(\frac{4}{3}\right)^n$) whilst its extent is finite. Surely, such
+            (precisely~$\lim_{n\rightarrow\infty}\left(\frac{4}{3}\right)^n$) whilst its extent is finite. Surely, such
             an object should cover some finite area. Unfortunately, the Koch curve being two-dimensional is clearly
             ruled out by our topological definition. In fact, the topological dimension of the Koch curve can easily be
             verified to be 1, which seems somewhat unfitting.
@@ -271,10 +271,10 @@
         pattern
         \begin{enumerate}
             \item Create a single particle at the origin and call it the `cluster' (seeding);
-            \item Create a new particle at a random position, uniformly chosen on the n-sphere with radius
+            \item Create a new particle at a random position, uniformly chosen on the $n$-sphere with radius
                 $r=r_\mathrm{C}+10$ particle diameters around the unweighted center of the cluster.
                 $r_\mathrm{C}$ labels the `cluster radius', which
-                is defined as the minimum radius of an n-sphere which completely contains the whole cluster;
+                is defined as the minimum radius of an $n$-sphere which completely contains the whole cluster;
             \item Let the new particle perform a random walk. It becomes part of the cluster in the instant
                 they touch;
             \item Go back to step 2.
@@ -397,13 +397,13 @@
         but also exhibits behaviour commonly attributed to living entities.
 
         {\small
-            \paragraph{Further reading}
+            \paragraph{Further Reading}
             The original model as presented by M. Eden in 1961 is \cite{src-eden}. Meakin's modifications are
             covered in \cite{src-meakin-eden}.
         }
     \section{\lstinline!trivial! -- a fractal growth toolkit}
-        To implement the models described above we designed a generic C++ toolkit to 
-        In our implementation we tried to focus on the following design goals, using object-oriented techniques:
+        In our implementation of the above models we focussed on the following design goals, using object-oriented
+        techniques:
         \begin{description}
             \item[Performance] We have to make multiple runs to get sufficient statistics, so it is important that the
                 programs generate large clusters in short times.
@@ -418,18 +418,19 @@
         going to implement some major changes described in the last section in the near future to make it even more
         useful.
 
-        In its current state the toolkit allows us to implement the basic models described before in arbitrary
+        In its current state the toolkit allows to implement the basic models described before in arbitrary
         dimensionalities with 2 and 3-dimensional (anaglyphic) real-time visualization, extraction of statistical
-        information during the growth, and drawing of single images of 2-dimensional clusters. We can also plug in
+        information during the growth, and drawing of single images of 2-dimensional clusters. One can also plug in
         arbitrary random number generators, where in our calculations we always used the Mersenne Twister (MT 19937, see
         \cite{src-matsumoto}).  Number limited growth calculation in higher dimensionalities than 2 is not mentioned in
-        any of the papers we read but is also possible with \lstinline'trivial'.
+        any of the papers cited but is also possible with \lstinline'trivial'.
 
         The toolkit also enabled us to experiment with different setups, detailed in the last part of this section,
         which increases its practical use.
 
         \subsection{Details on the implementation}
             A typical \lstinline'trivial'-program currently looks as follows:
+            {\scriptsize
             \begin{lstlisting}
 typedef meakin::sticky_particle<position<3>> particle_type;
 typedef meakin::static_cluster<particle_type> cluster_type;
@@ -446,33 +447,34 @@ for (int n = 0; n < 1e6; ++n)
         w.accept(visitor);
 }
             \end{lstlisting}
-            This implements a diffusion limited growth of a single static cluster in 3 dimensions which is visualised
+            }
+            This implements diffusion limited growth of a single static cluster in 3 dimensions which is visualised
             using OpenGL every hundredth step and terminates after the millionth.
 
             As one can see from this, there are four major building blocks in our program:
             \begin{enumerate}
                 \item The \lstinline'world' Template
-                \item The particle type
-                \item The cluster type
-                \item The updater type
+                \item The \lstinline'Particle' type
+                \item The \lstinline'Cluster' type
+                \item The \lstinline'Updater' type
             \end{enumerate}
             Additionally there is the position type that completely defines our metric topology and is in this case just
-            a 4-dimensional vector, and the visitor interface that allows us to get the current state of the world (here
+            a 3-dimensional vector, and the visitor interface that allows us to get the current state of the world (here
             only to provide some visualisation, in actual programs maybe for statistics or loading and saving states).
 
-            The position type can be used to implement different kinds of lattices. Currently we have a simple position
-            type for `infinite' lattices, and a \lstinline'periodic_position'-type, which implements periodic boundary
-            conditions.
+            The position type can be used to implement different kinds of lattices. Currently we have a simple
+            \lstinline'position' type for `infinite' lattices that is used in the example above, and a
+            \lstinline'periodic_position' type, which implements periodic boundary conditions.
 
             In the following we'll look into the concepts of the basic building blocks and describe some of their
             provided implementations.
 
             \subsubsection{The \lstinline!world! Template}
                 This template class is the main interface to the toolkit. It has four template parameters, the basic
-                \lstinline!Particle! type it should use, the type of \lstinline!cluster!s that get created when
+                \lstinline!Particle! type it should use, the type of \mbox{\lstinline!Cluster!s} that get created when
                 particles merge, and the \lstinline!Updater! type, which handles creation and destruction of objects in
                 each step.  Additionally the type of the \lstinline!RandomNumberGenerator!, which defaults to a Mersenne
-                Twister in our case, is parametrized, which allows us to use different (i.e.\ faster) generators if
+                Twister in our case, is parametrised, which allows us to use different (i.e.\ faster) generators if
                 necessary.
 
                 One can interact with objects of this class by calling the \lstinline!step!-method, which calculates a
@@ -485,8 +487,8 @@ for (int n = 0; n < 1e6; ++n)
                     \item Let one particle interact with each other and each cluster and see if they are going to be
                         merged
                         \begin{itemize}
-                            \item[If] there are particles to be merged, merge them into a cluster (or create a new one),
-                                and remove them from world
+                            \item[If~~] there are particles to be merged with the current one, merge them into a cluster
+                              (or create a new one), and remove them from world
                             \item[Else] move the particle in a random direction
                         \end{itemize}
                     \item Repeat the same for every particle
@@ -498,7 +500,7 @@ for (int n = 0; n < 1e6; ++n)
 
             \subsubsection{The Particle}
                 The particles are the most basic objects in our simulations. In the current version they consist merely
-                of positional information and for the Eden model of the rating of the particle. There is also a
+                of position information and for the Eden model of the rating of the particle. There is also a
                 prototype of a Meakin implementation featuring Coulomb interaction, where the particles also carry
                 charge information.
 
@@ -506,8 +508,8 @@ for (int n = 0; n < 1e6; ++n)
                 \ref{sec-limits}.
 
             \subsubsection{The Cluster}
-                Clusters are specialized containers of particles. To the outside they provide positional and bounding
-                information, which is in the current implementation always spherical. They can interact with each other
+                Clusters are specialized containers of particles. To the outside they provide position and bounding
+                information, which in the current implementation is always spherical. They can interact with each other
                 and with particles, providing merging and movement information and also can be moved by themselves,
                 where the merging is implemented by adding every particle of the other cluster one by one.
             
@@ -523,45 +525,49 @@ for (int n = 0; n < 1e6; ++n)
                         fast
                 \end{description}
                 The first two points are contrary to each other. The first one suggests using a linear iterable
-                container where particles carry their own position-information, but that would result in a linear
+                container where particles carry their own position information, but that would result in a linear
                 runtime for position-based lookup. On the other hand, the second point suggests using a position-indexed
                 random access container with a special \lstinline'empty'-entry, but that would result in a
                 more-than-linear runtime for an iteration over all particles.
 
                 We thus concluded that we had to implement a multi-indexed container, effectively implementing both
-                variants. Memory is of no concern in this approach, because the linear container grows linearly while
-                the random-access container grows at least quadratically, depending on the dimensionality.
+                variants. The additional amount of memory required by the linear container is of no concern in this
+                approach, because it grows linearly while the random-access container grows at least quadratically,
+                depending on the dimensionality.
 
-                Because we didn't want to limit the size of the cluster in any way beforehand, we implemented the linear
+                Because we did not want to limit the size of the cluster in any way beforehand, we implemented the linear
                 container as an \lstinline'std::vector' and the random-access container as an exponentially growing
                 hypercube (see \lstinline'hyper_cube.hpp') with an overloaded index-operator to allow easy
                 position-based lookups. To model an empty cell in this local lattice we used the Boost.Optional
-                library\cite{boost-optional} and just left all empty cells uninitialised. A growth is initiated whenever
+                library\cite{src-boost} and just left all empty cells uninitialised. A growth is initiated whenever
                 a particle is to be added outside of this hypercube and is done by creating a new hypercube with two
                 times the edge length of the previous one and then copying the old cube into the new one. This could be
-                further optimised by using the linear container to fill the new cube, this will be done in a future
+                further optimised by using the linear container to fill the new cube and will be done in a future
                 version.
 
                 We further optimised the \lstinline'has_particle_at'-method by recalculating a bounding sphere in every
-                addition of a particle that lies outside of the current sphere. Also, whenever the hypercube has to grow
-                it will ground around the center of this bounding sphere to fill it as dense as possible. In
+                addition of a particle that lies outside of the current sphere. Also, whenever the hypercube has to be
+                resized it will grow around the center of this bounding sphere to fill it as dense as possible. In
                 \lstinline'has_particle_at' the bounding sphere is used to jump quickly out of the function if the
                 particle is too far away from the center to touch the cluster.
 
-                For the Eden-Meakin model we currently don't have a dedicated cluster type (which could be a graph with
+                For the Eden-Meakin model we currently do not have a dedicated cluster type (which could be a graph with
                 weighted nodes or at least some optimisations regarding the boundary) but instead use a slightly
                 specialized Meakin cluster that does the scoring in the \lstinline'add_particle'-method. This gives
-                decent performance to create usable results which is why we haven't implemented an extra cluster yet.
+                decent performance to create usable results which is why we have not implemented an extra cluster yet.
 
             \subsubsection{Interactions}
                 Currently every interaction is implemented as a set of overloads of the \lstinline'interact'-function,
                 that gets an additional \lstinline'state'-parameter. This \lstinline'state' is used in the main program
                 loop to determine in which direction the object may move and if it is to be merged.
 
-                The probabilities for different directions are needed to implement a sticking-probability, because we
-                have to prevent two objects that didn't merge in the current step from moving into each other. They
-                could do that if we weren't careful, because we have no real lattice but only objects that know their
-                position themselves and aren't indexed by it.
+                Probabilities for different directions are needed to implement a sticking-probability, because we
+                have to prevent two objects that did not merge in the current step from moving into each other. They
+                could do that if we were not careful, because we have no real lattice but only objects that know their
+                position themselves and are not indexed by it.
+                
+                Furthermore, by changing the probabilities, forces acting on the particles can be simulated as discussed
+                below.
 
             \subsubsection{The Updater}
                 The Updater's role is to prepare the environment in each step. In our implementation an Updater is a
@@ -570,11 +576,11 @@ for (int n = 0; n < 1e6; ++n)
 
                 For the diffusion limited growth the updater first removes a particle if it is too far away from the
                 cluster, we used the value of 2 times the radius of the cluster that is also used in Meakin's paper. Too
-                verify that this indeed doesn't change our measurements we plotted the dependence of the radius of
+                verify that this indeed does not change our measurements we plotted the dependence of the radius of
                 gyration (which is our main statistical value) against this kill-radius in figure \ref{fig-killradius}.
-                One can see, that from a deletion radius of 2 on the radius of gyration stays mostly constant.
+                One can see that from a deletion radius of 2 on the radius of gyration stays mostly constant.
                 
-                Although we didn't do enough runs on this to really prove this, those tries gave us enough evidence to
+                Although we did not do enough runs on this to really prove this, those tries gave us enough evidence to
                 believe Meakin.
                 \begin{figure}
                     \center
@@ -587,8 +593,8 @@ for (int n = 0; n < 1e6; ++n)
                 \end{figure}
 
             \subsubsection{Visitor Interface}
-                Because we didn't want to clutter the interface of \lstinline'world' we implemented the Visitor
-                pattern\cite{bib-visitor} as an entry point for both drawing and statistics facilities. In a later
+                Because we did not want to clutter the interface of \lstinline'world' we implemented the Visitor
+                pattern\cite{src-visitor} as an entry point for both drawing and statistics facilities. In a later
                 implementation the currently \lstinline'public' methods \lstinline'get_particles' and
                 \lstinline'get_clusters' will disappear and will be replaced by a more versatile interface.
 
@@ -597,7 +603,7 @@ for (int n = 0; n < 1e6; ++n)
                 implemented, where the latter uses the current score of a particle to select a color from a scale.
                 Because it was very difficult to see anything from the 3D renderings, we added an anaglyph drawer, which
                 enabled us to see the fractal structure with red-cyan glasses. One of those renderings is seen in
-                Figure~\ref{fig-anaglyph}.
+                fig.~\ref{fig-anaglyph}.
                 \begin{figure*}
                     \center
                     \includegraphics[width=10cm]{img/anaglyph.png}
@@ -633,8 +639,8 @@ for (int n = 0; n < 1e6; ++n)
                 deviation from the values obtained via the radius of gyration, as already stated by Meakin.
 
                 Some seven-dimensional cluster have been grown, but since a particle has more possibilities to `walk
-                around' the cluster it takes significantly more time for it to hit, while it doesn't necessarily has to
-                move far away from it where it would be killed. Although the results acquired are not statistically
+                around' the cluster it takes significantly more time for it to hit, while it does not necessarily has to
+                move far away from it where it would be killed. Although the results obtained are not statistically
                 significant and may suffer from finite-size artifacts, they still do not rule out the `law of $\frac{5}{6}$'.
                 The large fluctuations in fractal dimensionality Meakin observed at 10,000 particles, unfortunately
                 do not decrease when going to clusters of 100,000 particles. It seems likely that this is not due to
@@ -642,7 +648,8 @@ for (int n = 0; n < 1e6; ++n)
                 and density-density-correlation). Remember -- the structures are \emph{not} true fractals in the
                 mathematical sense. Interestingly, our data cannot rule out that the fractal dimension $d$ is in fact
                 a random variable with expectation value of about $\frac{5}{6}D$ even in the limit
-                $N\rightarrow\infty$.
+                $N\rightarrow\infty$. If this is correct, it is also a strong hint for the self-similarity and scaling
+                properties discussed before.
 
             \subsubsection{Cluster diffusion}
                 Instead of growing cluster from diffusing particles, one could as well grow a cluster from diffusing
@@ -674,7 +681,7 @@ for (int n = 0; n < 1e6; ++n)
                 of the rock, the \emph{seed} in the language of the growth model). The Meakin model can be adapted
                 to describe this process in the following straight-forward way:
                 \begin{itemize}
-                    \item Create particles not uniformly on the n-sphere, but with a fixed $x_0$ coordinate. All other
+                    \item Create particles not uniformly on the $n$-sphere, but with a fixed $x_0$ coordinate. All other
                         coordinates can be distributed uniformly.
                     \item Increase the probability for stepping along the 0-direction in the random walk. The more
                         probable it becomes, the stronger is the `flow'.
@@ -774,15 +781,15 @@ for (int n = 0; n < 1e6; ++n)
             \label{sec-limits}
             The current implementation has some drawbacks and unattractivenesses. A main problem are the
             interactions. For starters it is very complicated to implement additional interactions, like the Coulomb
-            interaction. One has overload \lstinline'interact' three times with nearly identical code, which is
+            interaction. One has to overload \lstinline'interact' three times with nearly identical code, which is
             quite unfortunate. It should also maybe renamed to \lstinline'interact_with', because it handles the
             interaction of the first object with the second and is not symmetric.
 
-            A major drawback of our current approach is that we can't define different boundaries for clusters. This
+            A major drawback of our current approach is that we cannot define different boundaries for clusters. This
             would be very favorable for example for the Dendrites, because their natural boundary is not a sphere but
             rather the current height of the crystals. Also the tube model could be sped up with that.
 
-            Another smaller problem is the fact, that we currently haven't found a good method to `split' clusters to
+            Another smaller problem is the fact that we currently have not found a good method to `split' clusters to
             model some kind of erosion, which would make the tube model far more useful. This could be helped by using a
             similar scoring algorithm as in the Eden-Meakin model. Still, finding out if a cluster is somehow `unstable'
             is not an easy task.
@@ -794,10 +801,10 @@ for (int n = 0; n < 1e6; ++n)
             when contained in clusters, and as a kind of `single-particle clusters' on the other, which they only
             have as free particles.
 
-            To tackle all theses problems we're trying to define new, more general concepts. We will introduce concept
+            To tackle all theses problems we are going to define new, more general concepts. We will introduce concept
             \lstinline'ParticleContainer' which roughly covers \lstinline'static_cluster' and
             \lstinline'single_particle'. All bounding calculations are to be done inside the object itself. Furthermore
-            we will introduce \lstinline'Interaction', which defines all particle-state information (which is the
+            we will introduce \mbox{\lstinline'Interaction',} which defines all particle-state information (which is the
             \lstinline'value_type' of \lstinline'ParticleContainer') and is chainable, so that we can for example add
             an electric charge to sticky particles.
 
@@ -834,7 +841,11 @@ for (int n = 0; n < 1e6; ++n)
         \bibitem{src-meakin-eden} P. Meakin, Physica A, 179 (1991)
         \bibitem{src-mandelbrot} B. Mandelbrot, The Fractal Geometry of Nature, Benoit B. Mandelbrot
         \bibitem{src-matsumoto}M. Matsumoto, T. Nishimura, Mersenne twister. In: ACM Transactions on Modeling and
-          Computer Simulation. 8, 1998
+          Computer Simulation (1998)
+        \bibitem{src-boost} \texttt{http://boost.org/libs/optional}
+        \bibitem{src-visitor} E.~Gamma, R.~Helm, R.~Johnson, J.~Vlissides,
+          Design Patterns: Elements of Reusable Object-Oriented Software.
+          Addison Wesley (1995)
     \end{thebibliography}
 %  \end{multicols}
 \end{document}
