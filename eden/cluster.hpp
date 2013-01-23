@@ -33,7 +33,7 @@ namespace eden
                 for(unsigned n = 0; n < 2 * position_type::dimension; ++n)
                 {
                     position_type pos = p.position + (n % 2 ? 1 : -1) * get_unit_vector<position_type>(n / 2); // p still holds absolute position
-                    if(has_particle_at(pos) && base::data_[pos - base::cube_center_]->score > base::data_[p.position + parent - base::cube_center_]->score)
+                    if(base::has_particle_at(pos) && base::data_[pos - base::cube_center_]->score > base::data_[p.position + parent - base::cube_center_]->score)
                         parent = pos - p.position;
                 }       
                 base::particles_.back().parent = parent;

@@ -40,7 +40,7 @@ namespace trivial
         void grow_around (index_type const& index, unsigned new_radius = 0)
         {
             if (new_radius == 0)
-                new_radius = 2 * std::max(radius_, 1u);
+                new_radius = 2 * std::max({radius_, 1lu});
             else
             {
                 // Round up to next highest power of 2
